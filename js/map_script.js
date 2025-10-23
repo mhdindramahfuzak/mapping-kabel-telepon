@@ -1,34 +1,33 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    // 1. Inisialisasi Peta - Set view awal
-    const map = L.map('map').setView([1.353, 102.152], 15); // Koordinat Sei Pakning & Zoom Level
+    // 1. Inisialisasi Peta
+    const map = L.map('map').setView([1.353, 102.152], 15);
 
     // --- Definisi Tile Layers ---
     const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19, // Zoom maksimum yang didukung tile server
-        attribution: '© OpenStreetMap contributors' // Atribusi wajib
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
     });
 
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19, // Zoom maksimum
-        attribution: 'Tiles © Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community' // Atribusi wajib
+        maxZoom: 18,
+        attribution: 'Tiles © Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     });
 
-    // Tambahkan layer SATELIT sebagai default ke peta
-    satelliteLayer.addTo(map); // INI YANG MEMBUAT SATELIT JADI DEFAULT
+    satelliteLayer.addTo(map); // Default layer
 
-    // --- Kontrol Layer (Tombol untuk ganti Peta Dasar) ---
+    // --- Kontrol Layer ---
     const baseMaps = {
         "Satelit": satelliteLayer,
         "OpenStreetMap": osmLayer
     };
-    L.control.layers(baseMaps).addTo(map); // Tambahkan tombol switch layer
-    // ----------------------
+    L.control.layers(baseMaps).addTo(map);
 
-    let currentMarker = null; // Menyimpan marker popup yang sedang terbuka
-    let currentTbData = null; // Menyimpan data TB yang sedang dilihat di sidebar/popup
+    let currentMarker = null;
+    let currentTbData = null; // Cache data terakhir yg dibuka popupnya
+    let currentKmlCoords = { lat: null, lng: null };
 
-    // Elemen Sidebar & Form
+    // --- Elemen Sidebar & Form (Sama seperti sebelumnya) ---
     const sidebar = document.getElementById('sidebar');
     const detailsView = document.getElementById('details-view');
     const historyFormView = document.getElementById('history-form-view');
@@ -39,108 +38,179 @@ document.addEventListener('DOMContentLoaded', function() {
     const displayImageContainer = document.getElementById('display-image-container');
     const displayDeskripsi = document.getElementById('display-deskripsi');
     const displayArahKabel = document.getElementById('display-arah-kabel');
-    const editFormIdTb = document.getElementById('edit-form-id-tb'); // Input hidden ID di form edit
+    const detailsViewIdTbInput = document.getElementById('details-view-id-tb');
+    const editFormIdTbInput = document.getElementById('edit-form-id-tb');
+    const historyFormIdTbInput = document.getElementById('history-form-id-tb');
     const editFormDeskripsi = document.getElementById('edit-form-deskripsi');
     const editFormArahKabel = document.getElementById('edit-form-arah-kabel');
     const editFormFotoInput = document.getElementById('edit-form-foto');
     const deleteImageBtn = document.getElementById('delete-image-btn');
+    const toggleEditBtn = document.getElementById('toggle-edit-btn');
+    const saveHistoryBtn = historyForm.querySelector('button[type="submit"]');
+    // -----------------------------------------------------------
 
-    // 3. Muat file KML
-    const kmlLayer = omnivore.kml('peta_kabel.kml') // Pastikan path dan nama KML benar
+    // Fungsi untuk menampilkan popup setelah data diambil
+    function showPopupWithDetails(layer, placemarkName, lat, lng) {
+        currentMarker = layer; // Simpan marker yang diklik
+        currentKmlCoords = { lat, lng }; // Simpan koordinat
+
+        // Tampilkan popup loading sementara
+        layer.bindPopup(`<b>${placemarkName}</b><br><i>Memuat detail...</i>`, { minWidth: 200 }).openPopup();
+
+        fetch(`api/get_data.php?nama_tb=${encodeURIComponent(placemarkName)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Data fetched for popup:", data);
+                currentTbData = data; // Simpan data untuk mungkin digunakan sidebar
+                const details = data.details || {};
+                let popupContent = `<b>${placemarkName}</b><br>`;
+
+                // Tambahkan gambar jika ada
+                if (details.foto) {
+                    popupContent += `<img src="uploads/${details.foto}?t=${new Date().getTime()}" alt="Foto ${placemarkName}" class="popup-image"><br>`; // Tambahkan class CSS
+                } else {
+                    popupContent += `<small><i>Foto tidak tersedia.</i></small><br>`;
+                }
+
+                // Tambahkan tombol
+                popupContent += `
+                    <button class="popup-main-btn view-details-btn" onclick="openSidebar('details', '${placemarkName.replace(/'/g, "\\'")}', ${lat}, ${lng})">Lihat/Edit Detail</button>
+                    <button class="popup-main-btn add-history-btn" onclick="openSidebar('history', '${placemarkName.replace(/'/g, "\\'")}', ${lat}, ${lng})">Tambah Riwayat</button>
+                `;
+
+                // Update popup yang sudah terbuka
+                if (currentMarker && currentMarker.isPopupOpen()) {
+                    currentMarker.setPopupContent(popupContent);
+                } else {
+                    // Jika popup terlanjur ditutup, bind ulang
+                    layer.bindPopup(popupContent, { minWidth: 200 });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data for popup:', error);
+                currentTbData = null; // Reset cache jika gagal
+                const errorContent = `
+                    <b>${placemarkName}</b><br>
+                    <i>Gagal memuat data.</i><br>
+                    <button class="popup-main-btn btn-secondary" onclick="retryFetchPopup('${placemarkName.replace(/'/g, "\\'")}', ${lat}, ${lng})">Coba Lagi</button>
+                `;
+                 if (currentMarker && currentMarker.isPopupOpen()) {
+                    currentMarker.setPopupContent(errorContent);
+                } else {
+                    layer.bindPopup(errorContent, { minWidth: 200 });
+                }
+            });
+    }
+
+    // Fungsi global untuk mencoba lagi fetch data popup
+    window.retryFetchPopup = function(placemarkName, lat, lng) {
+        if (currentMarker) {
+            showPopupWithDetails(currentMarker, placemarkName, lat, lng);
+        }
+    }
+
+
+    // Muat file KML
+    const kmlLayer = omnivore.kml('peta_kabel.kml')
         .on('ready', function() {
-            // map.fitBounds(kmlLayer.getBounds()); // Sesuaikan zoom ke KML jika perlu
-            console.log("KML Loaded"); // Cek di console browser
+            console.log("KML Loaded");
 
-            // Iterasi setiap layer (marker, garis) dalam KML
             kmlLayer.eachLayer(function(layer) {
-                // Proses hanya jika layer adalah Point (marker)
                 if (layer.feature?.geometry?.type === 'Point') {
                     const props = layer.feature.properties;
-                    const placemarkName = props.name || 'Titik Tanpa Nama'; // Ambil nama dari KML
+                    const placemarkName = props.name || 'Titik Tanpa Nama';
+                    const coordinates = layer.feature.geometry.coordinates; // [lng, lat, alt]
+                    const lat = coordinates[1];
+                    const lng = coordinates[0];
 
-                    // Konten popup awal yang simpel dengan tombol
-                    const popupContent = `
-                        <b>${placemarkName}</b><br>
-                        <button class="popup-main-btn view-details-btn" onclick="openSidebar('details', '${placemarkName.replace(/'/g, "\\'")}')">Lihat/Edit Detail</button>
-                        <button class="popup-main-btn add-history-btn" onclick="openSidebar('history', '${placemarkName.replace(/'/g, "\\'")}')">Tambah Riwayat</button>
-                    `;
-                    // .replace(/'/g, "\\'") untuk handle nama KML yang mengandung kutip satu
+                    // **Jangan bind popup di sini lagi**
 
-                    layer.bindPopup(popupContent);
+                    // Tambahkan event listener untuk klik
+                    layer.on('click', function(e) {
+                        L.DomEvent.stopPropagation(e); // Hentikan event agar tidak konflik jika ada listener lain
+                        showPopupWithDetails(e.target, placemarkName, lat, lng);
+                    });
 
-                    // --- TAMBAHAN: Tooltip (Label) Permanen ---
+
+                    // Tooltip (Label) Permanen (Tetap ada)
                     layer.bindTooltip(placemarkName, {
-                        permanent: true,     // Selalu tampil
-                        direction: 'right',  // Posisi tooltip (bisa 'left', 'top', 'bottom', 'center')
-                        offset: [10, 0],     // Jarak [horizontal, vertikal] dari titik anchor marker
-                        className: 'kml-label' // Class CSS untuk styling (opsional)
+                        permanent: true,
+                        direction: 'right',
+                        offset: [10, 0],
+                        className: 'kml-label'
                     });
-                    // --- AKHIR TAMBAHAN ---
 
-                    // Simpan referensi marker saat popup dibuka
-                    layer.on('popupopen', function(e) {
-                         console.log(`Popup opened for: ${placemarkName}`); // Debug
-                         currentMarker = e.target;
-                    });
-                     // Hapus referensi saat popup ditutup
+                    // Hapus event listener lama untuk popupopen/close jika ada (opsional, untuk kebersihan)
+                    layer.off('popupopen');
+                    layer.off('popupclose');
+
+                     // Event saat popup ditutup (untuk mereset currentMarker)
                      layer.on('popupclose', function() {
-                         console.log(`Popup closed for: ${placemarkName}`); // Debug
-                         currentMarker = null;
+                        console.log(`Popup closed for: ${placemarkName}`);
+                        if (currentMarker === layer) { // Hanya reset jika popup yang ditutup adalah yang aktif
+                            currentMarker = null;
+                            currentTbData = null; // Kosongkan cache data juga
+                            currentKmlCoords = { lat: null, lng: null };
+                        }
                      });
                 }
-                 // Anda bisa tambahkan styling untuk LineString jika omnivore tidak mengambil style KML
-                // else if (layer.feature?.geometry?.type === 'LineString') {
-                //    layer.setStyle({ color: 'yellow', weight: 3, opacity: 0.8 }); // Contoh override style garis
-                // }
             });
         })
         .on('error', function(error) {
-            console.error("Error loading KML:", error); // Tampilkan error jika KML gagal dimuat
+            console.error("Error loading KML:", error);
             alert("Gagal memuat data KML. Periksa path file dan format KML.");
         })
-        .addTo(map); // Tambahkan layer KML ke peta
+        .addTo(map);
 
     // Fungsi global untuk membuka sidebar
-    window.openSidebar = function(mode, nama_tb) {
-        console.log(`Opening sidebar: mode=${mode}, tb=${nama_tb}`); // Debug
+    window.openSidebar = function(mode, nama_tb, lat, lng) {
+        console.log(`Opening sidebar: mode=${mode}, tb=${nama_tb}, coords=[${lat}, ${lng}]`);
+
+        // Simpan koordinat dari KML saat sidebar dibuka (untuk INSERT baru)
+        currentKmlCoords.lat = lat;
+        currentKmlCoords.lng = lng;
 
         // Reset tampilan sidebar
         document.querySelectorAll('.sidebar-view').forEach(v => v.classList.remove('active'));
-        toggleEditMode(false); // Pastikan mode edit nonaktif
+        toggleEditMode(false);
         historyForm.reset();
         editForm.reset();
         historyFormStatus.innerHTML = '';
         editFormStatus.innerHTML = '';
-        historyFormStatus.className = 'form-status'; // Reset class status
-        editFormStatus.className = 'form-status';   // Reset class status
+        historyFormStatus.className = 'form-status';
+        editFormStatus.className = 'form-status';
+        // Tidak perlu reset currentTbData di sini, mungkin masih relevan dari popup
 
-        // Tampilkan loading di view yang sesuai
+        // Tampilkan loading & set nama TB
         if (mode === 'details') {
             detailsView.classList.add('active');
             document.getElementById('details-sidebar-tb-name').innerText = nama_tb;
             displayDeskripsi.innerHTML = "<i>Memuat...</i>";
             displayArahKabel.innerHTML = "<i>Memuat...</i>";
             displayImageContainer.innerHTML = "<i>Memuat...</i>";
-            // Pastikan tombol edit awalnya disabled sampai data dimuat
-            document.getElementById('toggle-edit-btn').disabled = true;
+            toggleEditBtn.disabled = true;
+            deleteImageBtn.style.display = 'none';
         } else if (mode === 'history') {
             historyFormView.classList.add('active');
             document.getElementById('history-sidebar-tb-name').innerText = nama_tb;
-            // Pastikan tombol simpan riwayat awalnya disabled
-             historyForm.querySelector('button[type="submit"]').disabled = true;
+            saveHistoryBtn.disabled = true;
         }
 
-        // Tampilkan sidebar dengan menambahkan class
         sidebar.classList.add('sidebar-open');
-        console.log("Sidebar class added: sidebar-open"); // Debug
+        console.log("Sidebar class added: sidebar-open");
 
-        // Ambil data terbaru untuk sidebar
+        // Ambil data terbaru untuk mengisi sidebar (penting agar data selalu fresh)
         fetchDataForSidebar(nama_tb, mode);
     }
 
-    // Fungsi untuk mengambil data & mengisi sidebar
+    // Fungsi untuk mengambil data & mengisi sidebar (sama seperti sebelumnya)
     function fetchDataForSidebar(nama_tb, mode) {
-        console.log(`Fetching data for: ${nama_tb}`); // Debug
+        console.log(`Fetching data for sidebar: ${nama_tb}`);
         fetch(`api/get_data.php?nama_tb=${encodeURIComponent(nama_tb)}`)
             .then(response => {
                 if (!response.ok) {
@@ -149,122 +219,110 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log("Data received:", data); // Debug
-                currentTbData = data; // Simpan data terbaru
-                const details = data.details || {}; // Fallback jika details null
-                const idTb = details.id || ''; // Ambil ID, akan kosong jika data baru
+                console.log("Data received for sidebar:", data);
+                // Kita update currentTbData di sini juga untuk konsistensi,
+                // meskipun mungkin sudah ada dari popup
+                currentTbData = data;
+                const details = data.details || {};
+                const idTb = details.id || '';
 
-                // Always enable "Edit Data Ini" button, as it's also used for initial creation
-                // We will handle "new data" vs "existing data" in the PHP script
-                document.getElementById('toggle-edit-btn').disabled = false; // <<< PERBAIKAN DI SINI
+                toggleEditBtn.disabled = false; // Selalu aktifkan tombol edit
 
                 if (mode === 'details') {
-                    document.getElementById('details-view-id-tb').value = idTb; // Simpan ID untuk referensi
-                    editFormIdTb.value = idTb; // Set ID juga di hidden input form edit
+                    detailsViewIdTbInput.value = idTb;
+                    editFormIdTbInput.value = idTb;
 
-                    displayDeskripsi.innerText = details.deskripsi || 'Belum ada deskripsi.';
-                    displayArahKabel.innerText = details.arah_kabel || 'Tidak ada data.';
+                    displayDeskripsi.innerText = details.deskripsi || (idTb ? 'Belum ada deskripsi.' : 'Data belum ada di database.');
+                    displayArahKabel.innerText = details.arah_kabel || (idTb ? 'Tidak ada data.' : 'Data belum ada di database.');
 
                     if (details.foto) {
-                        // Tambahkan timestamp unik untuk cache busting
                         displayImageContainer.innerHTML = `<img src="uploads/${details.foto}?t=${new Date().getTime()}" alt="Foto ${details.nama_tb || nama_tb}">`;
-                        deleteImageBtn.style.display = 'block'; // Tampilkan tombol hapus
+                        deleteImageBtn.style.display = 'block';
                     } else {
-                        displayImageContainer.innerHTML = '<p><i>Foto tidak tersedia.</i></p>';
-                        deleteImageBtn.style.display = 'none'; // Sembunyikan tombol hapus
+                        displayImageContainer.innerHTML = `<p><i>Foto tidak tersedia.</i></p>`;
+                        deleteImageBtn.style.display = 'none';
                     }
 
                 } else if (mode === 'history') {
-                    document.getElementById('history-form-id-tb').value = idTb;
-                    // Aktifkan tombol simpan riwayat HANYA jika ID ditemukan (data sudah ada di DB)
-                    historyForm.querySelector('button[type="submit"]').disabled = !idTb;
+                    historyFormIdTbInput.value = idTb;
+                    saveHistoryBtn.disabled = !idTb;
                     if (!idTb) {
-                        setFormStatus(historyFormStatus, 'info', 'Data TB ini belum ada di database. Edit detail terlebih dahulu untuk menambahkan ID.');
+                        setFormStatus(historyFormStatus, 'info', 'Data TB ini belum ada di database. Silakan edit detail terlebih dahulu untuk menambahkannya.');
                     } else {
-                        setFormStatus(historyFormStatus, '', ''); // Clear info jika sudah ada ID
+                        setFormStatus(historyFormStatus, '', '');
                     }
                 }
             })
             .catch(error => {
                 console.error('Error fetching data for sidebar:', error);
-                currentTbData = null; // Reset data jika gagal
+                // Hanya reset data jika *sidebar* gagal fetch, jangan ganggu data popup
+                // currentTbData = null;
                 if (mode === 'details') {
                     displayDeskripsi.innerText = 'Gagal memuat data.';
                     displayArahKabel.innerText = 'Gagal memuat data.';
                     displayImageContainer.innerHTML = '<p>Gagal memuat foto.</p>';
-                    document.getElementById('toggle-edit-btn').disabled = true; // Nonaktifkan jika fetch gagal total
+                    toggleEditBtn.disabled = true;
                     deleteImageBtn.style.display = 'none';
+                    editFormIdTbInput.value = '';
+                    detailsViewIdTbInput.value = '';
                 } else if (mode === 'history') {
-                     setFormStatus(historyFormStatus, 'error', 'Gagal mengambil ID TB dari server.');
-                     historyForm.querySelector('button[type="submit"]').disabled = true;
+                     setFormStatus(historyFormStatus, 'error', 'Gagal mengambil data TB dari server.');
+                     saveHistoryBtn.disabled = true;
+                     historyFormIdTbInput.value = '';
                 }
             });
     }
 
-    // Fungsi global untuk menutup sidebar
+    // Fungsi global untuk menutup sidebar (Sama seperti sebelumnya)
     window.closeSidebar = function() {
         sidebar.classList.remove('sidebar-open');
-        console.log("Sidebar class removed: sidebar-open"); // Debug
-         // Reset state saat ditutup
-         currentTbData = null;
-         toggleEditMode(false); // Matikan mode edit jika aktif
-         document.querySelectorAll('.sidebar-view').forEach(v => v.classList.remove('active')); // Sembunyikan semua view
+        console.log("Sidebar class removed: sidebar-open");
+         // Tidak perlu reset currentTbData/Coords di sini, biarkan sampai popup lain dibuka/ditutup
+         toggleEditMode(false);
+         document.querySelectorAll('.sidebar-view').forEach(v => v.classList.remove('active'));
     }
 
-    // Fungsi global untuk toggle mode edit di sidebar
+    // Fungsi global untuk toggle mode edit di sidebar (Sama seperti sebelumnya)
     window.toggleEditMode = function(enable) {
-        if (enable && currentTbData?.details?.id) { // Hanya aktifkan jika ada data dan ID
-            console.log("Enabling edit mode"); // Debug
+        const idExists = currentTbData?.details?.id;
+        if (enable) {
+            console.log("Enabling edit mode");
             detailsView.classList.add('edit-mode');
-            // Isi form dengan data saat ini
-            editFormDeskripsi.value = currentTbData.details.deskripsi || '';
-            editFormArahKabel.value = currentTbData.details.arah_kabel || '';
-            editFormFotoInput.value = ''; // Reset input file setiap masuk mode edit
-             // Tampilkan/sembunyikan tombol hapus berdasarkan foto saat ini
-             deleteImageBtn.style.display = currentTbData.details.foto ? 'block' : 'none';
+            editFormDeskripsi.value = currentTbData?.details?.deskripsi || '';
+            editFormArahKabel.value = currentTbData?.details?.arah_kabel || '';
+            editFormFotoInput.value = '';
+            deleteImageBtn.style.display = (idExists && currentTbData?.details?.foto) ? 'block' : 'none';
         } else {
-             console.log("Disabling edit mode"); // Debug
+             console.log("Disabling edit mode");
             detailsView.classList.remove('edit-mode');
-            setFormStatus(editFormStatus, '', ''); // Clear status
+            setFormStatus(editFormStatus, '', '');
         }
     }
 
-    // Fungsi helper untuk menampilkan status form
+    // Fungsi helper untuk menampilkan status form (Sama seperti sebelumnya)
     function setFormStatus(element, type, message) {
         element.innerHTML = message ? `<span class="${type}">${message}</span>` : '';
-        element.className = `form-status ${type}`; // Update class container juga
+        element.className = `form-status ${type}`;
     }
 
-    // --- Event Listener untuk Form ---
+    // --- Event Listener untuk Form (Sama seperti sebelumnya) ---
 
     // Submit form riwayat
     historyForm.addEventListener('submit', function(e) {
         e.preventDefault();
         setFormStatus(historyFormStatus, 'info', 'Menyimpan Riwayat...');
         const formData = new FormData(historyForm);
-        const nama_tb = document.getElementById('history-sidebar-tb-name').innerText; // Ambil nama TB untuk refresh popup
+        // const nama_tb = document.getElementById('history-sidebar-tb-name').innerText; // Tidak perlu refresh popup dari sini
 
         fetch('api/tambah_riwayat.php', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                 setFormStatus(historyFormStatus, 'success', 'Riwayat berhasil disimpan!');
-                // Reset form & tutup sidebar setelah delay
                 historyForm.reset();
                 setTimeout(() => { closeSidebar(); }, 1500);
-
-                 // Refresh popup jika marker masih ada dan popupnya terbuka
-                 if (currentMarker && currentMarker.isPopupOpen()) {
-                    const newPopupContent = `
-                        <b>${nama_tb}</b><br>
-                        Riwayat diperbarui.<br>
-                        <button class="popup-main-btn view-details-btn" onclick="openSidebar('details', '${nama_tb.replace(/'/g, "\\'")}')">Lihat/Edit Detail</button>
-                        <button class="popup-main-btn add-history-btn" onclick="openSidebar('history', '${nama_tb.replace(/'/g, "\\'")}')">Tambah Riwayat</button>
-                    `;
-                    currentMarker.setPopupContent(newPopupContent);
-                 }
             } else {
-                setFormStatus(historyFormStatus, 'error', `Error: ${data.message}`);
+                setFormStatus(historyFormStatus, 'error', `Error: ${data.message || 'Gagal menyimpan riwayat.'}`);
             }
         })
         .catch(error => {
@@ -278,30 +336,53 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         setFormStatus(editFormStatus, 'info', 'Menyimpan Perubahan...');
         const formData = new FormData(editForm);
-        // ID sudah ada di hidden input 'edit-form-id-tb' yang juga punya name='id_tb'
         const nama_tb = document.getElementById('details-sidebar-tb-name').innerText;
+
+        formData.append('nama_tb_kml', nama_tb);
+        if (currentKmlCoords.lat !== null && currentKmlCoords.lng !== null) {
+            formData.append('latitude', currentKmlCoords.lat);
+            formData.append('longitude', currentKmlCoords.lng);
+        } else {
+             console.warn("Koordinat KML tidak tersedia saat menyimpan.");
+             // Anda bisa memutuskan apakah akan lanjut atau tidak
+        }
 
         fetch('api/update_tb.php', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                setFormStatus(editFormStatus, 'success', 'Data berhasil diperbarui!');
-                // Refresh data di sidebar (panggil lagi fetch) & matikan mode edit
-                fetchDataForSidebar(nama_tb, 'details'); // Panggil lagi untuk refresh view
-                toggleEditMode(false); // Kembali ke mode view setelah berhasil
+                setFormStatus(editFormStatus, 'success', data.message || 'Data berhasil disimpan!');
 
-                 // Refresh popup jika masih ada dan popupnya terbuka
-                 if (currentMarker && currentMarker.isPopupOpen()) {
-                    const newPopupContent = `
-                        <b>${nama_tb}</b><br>
-                        Data diperbarui.<br>
-                        <button class="popup-main-btn view-details-btn" onclick="openSidebar('details', '${nama_tb.replace(/'/g, "\\'")}')">Lihat/Edit Detail</button>
-                        <button class="popup-main-btn add-history-btn" onclick="openSidebar('history', '${nama_tb.replace(/'/g, "\\'")}')">Tambah Riwayat</button>
-                    `;
-                    currentMarker.setPopupContent(newPopupContent);
+                const newId = data.new_id || editFormIdTbInput.value; // Ambil ID baru atau ID lama
+                if (data.new_id) {
+                     editFormIdTbInput.value = data.new_id;
+                     detailsViewIdTbInput.value = data.new_id;
+                     // Update data cache jika ada
+                     if (currentTbData && currentTbData.details) currentTbData.details.id = data.new_id;
+                     console.log("New entry created with ID:", data.new_id);
+                }
+
+                // Update data foto di cache jika ada foto baru
+                if (data.new_photo && currentTbData && currentTbData.details) {
+                    currentTbData.details.foto = data.new_photo;
+                }
+
+
+                // Tunggu sebentar lalu refresh data sidebar & matikan mode edit
+                setTimeout(() => {
+                    fetchDataForSidebar(nama_tb, 'details'); // Refresh view sidebar
+                    toggleEditMode(false); // Kembali ke mode view
+                }, 1000);
+
+                 // Refresh popup jika marker yang sesuai masih aktif dan terbuka
+                 if (currentMarker && currentMarker.feature.properties.name === nama_tb && currentMarker.isPopupOpen()) {
+                    console.log("Refreshing active popup after save...");
+                    // Panggil ulang showPopupWithDetails agar popup ikut terupdate
+                    showPopupWithDetails(currentMarker, nama_tb, currentKmlCoords.lat, currentKmlCoords.lng);
                  }
+
             } else {
-                setFormStatus(editFormStatus, 'error', `Error: ${data.message}`);
+                setFormStatus(editFormStatus, 'error', `Error: ${data.message || 'Gagal menyimpan data.'}`);
             }
         })
         .catch(error => {
@@ -310,44 +391,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Fungsi global untuk menghapus gambar saat ini (dipanggil dari tombol)
+    // Fungsi global untuk menghapus gambar saat ini (Sama seperti sebelumnya, tapi refresh popup juga)
     window.deleteCurrentImage = function() {
-        if (!currentTbData?.details?.id || !currentTbData?.details?.foto) {
-             setFormStatus(editFormStatus, 'info', 'Tidak ada gambar terpasang untuk dihapus.');
+        const id_tb = editFormIdTbInput.value;
+        const nama_tb = document.getElementById('details-sidebar-tb-name').innerText;
+
+        if (!id_tb || !currentTbData?.details?.foto) {
+             setFormStatus(editFormStatus, 'info', 'Tidak ada gambar terpasang atau ID TB tidak valid.');
             return;
         }
-         // Konfirmasi lagi sebelum menghapus
          if (!confirm('Anda yakin ingin menghapus foto ini secara permanen?')) {
             return;
          }
 
         setFormStatus(editFormStatus, 'info', 'Menghapus foto...');
-        const id_tb = currentTbData.details.id;
-        const nama_tb = currentTbData.details.nama_tb; // Nama TB untuk refresh
 
         fetch('api/delete_image.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // Kirim data sebagai form-encoded
-            body: `id_tb=${id_tb}` // Kirim hanya ID
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id_tb=${id_tb}`
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                  setFormStatus(editFormStatus, 'success', 'Foto berhasil dihapus!');
-                 // Refresh data sidebar untuk menampilkan perubahan
+
+                 // Update data cache
+                 if(currentTbData && currentTbData.details) currentTbData.details.foto = null;
+
+                 // Refresh data sidebar
                  fetchDataForSidebar(nama_tb, 'details');
-                  // Refresh popup jika masih ada dan popupnya terbuka
-                  if (currentMarker && currentMarker.isPopupOpen()) {
-                     const newPopupContent = `
-                         <b>${nama_tb}</b><br>
-                         Foto dihapus.<br>
-                         <button class="popup-main-btn view-details-btn" onclick="openSidebar('details', '${nama_tb.replace(/'/g, "\\'")}')">Lihat/Edit Detail</button>
-                         <button class="popup-main-btn add-history-btn" onclick="openSidebar('history', '${nama_tb.replace(/'/g, "\\'")}')">Tambah Riwayat</button>
-                     `;
-                     currentMarker.setPopupContent(newPopupContent);
-                  }
+
+                 // Refresh popup jika marker yang sesuai masih aktif dan terbuka
+                 if (currentMarker && currentMarker.feature.properties.name === nama_tb && currentMarker.isPopupOpen()) {
+                    console.log("Refreshing active popup after delete...");
+                    showPopupWithDetails(currentMarker, nama_tb, currentKmlCoords.lat, currentKmlCoords.lng);
+                 }
+
             } else {
-                setFormStatus(editFormStatus, 'error', `Error: ${data.message}`);
+                setFormStatus(editFormStatus, 'error', `Error: ${data.message || 'Gagal menghapus foto.'}`);
             }
         })
         .catch(error => {

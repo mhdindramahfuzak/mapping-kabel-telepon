@@ -252,3 +252,20 @@ hr {
     border-top: 1px solid #eee;
     margin: 20px 0;
 }
+
+/* Styling untuk gambar di dalam popup Leaflet */
+.leaflet-popup-content .popup-image {
+    max-width: 150px; /* Batasi lebar maksimum gambar */
+    height: auto;     /* Biarkan tinggi menyesuaikan */
+    display: block;   /* Agar margin berfungsi */
+    margin: 8px auto 8px 0; /* Jarak atas/bawah, rata kiri */
+    border: 1px solid #eee; /* Optional: border tipis */
+    border-radius: 3px;     /* Optional: sudut sedikit melengkung */
+}
+
+/* Sedikit penyesuaian lebar popup jika gambar terlalu besar */
+.leaflet-popup-content {
+    width: auto !important; /* Biarkan lebar menyesuaikan konten */
+    min-width: 200px; /* Lebar minimum popup */
+    max-width: 280px; /* Lebar maksimum popup agar tidak terlalu lebar */
+}

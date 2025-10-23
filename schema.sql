@@ -1,61 +1,28 @@
---
--- Database: `db_mapping_telepon`
---
--- Anda bisa membuat database-nya terlebih dahulu di phpMyAdmin
--- atau jalankan perintah ini:
-CREATE DATABASE IF NOT EXISTS `db_mapping_telepon` 
-  DEFAULT CHARACTER SET utf8mb4 
-  DEFAULT COLLATE utf8mb4_general_ci;
-
--- Gunakan database yang baru dibuat
-USE `db_mapping_telepon`;
-
--- --------------------------------------------------------
-
---
--- Struktur Tabel untuk `terminal_box`
---
--- Tabel ini akan menyimpan semua data inti untuk setiap titik Terminal Box (TB)
--- yang akan Anda tandai di peta.
---
-
+-- Buat ulang tabel terminal_box
 CREATE TABLE `terminal_box` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `nama_tb` VARCHAR(100) NOT NULL,
-  `latitude` VARCHAR(30) NOT NULL,
-  `longitude` VARCHAR(30) NOT NULL,
+  `nama_tb` VARCHAR(100) NOT NULL COMMENT 'Nama unik dari KML',
+  `latitude` VARCHAR(30) NULL COMMENT 'Koordinat Latitude dari KML',
+  `longitude` VARCHAR(30) NULL COMMENT 'Koordinat Longitude dari KML',
   `deskripsi` TEXT NULL,
-  `arah_kabel` TEXT NULL COMMENT 'Penjelasan singkat arah kabel, misal: Dari PABX ke TB-Klinik',
-  `foto` VARCHAR(255) NULL COMMENT 'Hanya menyimpan nama file, misal: tb_klinik.jpg',
+  `arah_kabel` TEXT NULL COMMENT 'Penjelasan singkat arah kabel',
+  `foto` VARCHAR(255) NULL COMMENT 'Nama file foto',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `nama_tb_unique` (`nama_tb`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  UNIQUE KEY `nama_tb_unique` (`nama_tb`) -- Pastikan nama TB unik
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
--- --------------------------------------------------------
-
---
--- Struktur Tabel untuk `riwayat_perbaikan`
---
--- Tabel ini akan menyimpan catatan riwayat perbaikan.
--- Tabel ini terhubung dengan `terminal_box` menggunakan `id_tb`.
---
-
+-- Buat ulang tabel riwayat_perbaikan
 CREATE TABLE `riwayat_perbaikan` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `id_tb` INT(11) NOT NULL,
-  `tanggal` DATE NOT NULL COMMENT 'Tanggal perbaikan dilakukan',
-  `keterangan` TEXT NOT NULL COMMENT 'Deskripsi detail perbaikan yang dilakukan',
-  `teknisi` VARCHAR(100) NULL COMMENT 'Nama teknisi atau tim yang mengerjakan',
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Tanggal data ini dimasukkan ke sistem',
+  `tanggal` DATE NOT NULL COMMENT 'Tanggal perbaikan',
+  `keterangan` TEXT NOT NULL COMMENT 'Deskripsi perbaikan',
+  `teknisi` VARCHAR(100) NULL COMMENT 'Nama teknisi',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Waktu data dimasukkan',
   PRIMARY KEY (`id`),
-  
-  -- Membuat relasi (Foreign Key)
-  -- Ini akan menghubungkan `id_tb` di tabel ini ke `id` di tabel `terminal_box`
   CONSTRAINT `fk_riwayat_ke_tb`
-    FOREIGN KEY (`id_tb`) 
+    FOREIGN KEY (`id_tb`)
     REFERENCES `terminal_box`(`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+    ON DELETE CASCADE -- Jika TB dihapus, riwayatnya ikut terhapus
+    ON UPDATE CASCADE -- Jika ID TB berubah, ID di riwayat ikut berubah
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
