@@ -1,0 +1,170 @@
+/* Reset dasar dan styling body */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Mencegah scroll di halaman peta */
+}
+
+/* Kontainer Peta */
+#map {
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* Styling Sidebar */
+#sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Mulai dari luar layar */
+    width: 380px;
+    height: 100%;
+    background: #ffffff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Di atas peta */
+    transition: right 0.3s ease-in-out;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* Kelas untuk menampilkan sidebar */
+#sidebar.sidebar-open {
+    right: 0;
+}
+
+/* Tombol Tutup Sidebar */
+#close-sidebar {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+}
+#close-sidebar:hover {
+    color: #333;
+}
+
+#sidebar h2 {
+    margin-top: 20px;
+    color: #333;
+}
+
+/* Styling Form di Sidebar */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+.form-group input[type="date"],
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box; /* Agar padding tidak menambah lebar */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.btn-submit {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+}
+.btn-submit:hover {
+    background-color: #218838;
+}
+#form-status {
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+/* Styling untuk Popup di Peta */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+.leaflet-popup-content {
+    margin: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-height: 350px;
+    overflow-y: auto;
+    width: 300px !important;
+}
+.popup-header {
+    margin-bottom: 10px;
+}
+.popup-header h3 {
+    margin: 0;
+    color: #005bab;
+}
+.popup-header p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #555;
+    font-style: italic;
+}
+.popup-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+}
+.popup-section-title {
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 3px;
+}
+.popup-history-item {
+    font-size: 0.9em;
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.popup-history-item:last-child {
+    border-bottom: none;
+}
+.history-date {
+    font-weight: bold;
+    color: #333;
+}
+.history-keterangan {
+    color: #444;
+}
+.history-teknisi {
+    font-style: italic;
+    color: #777;
+    font-size: 0.9em;
+}
+.popup-action-btn {
+    background-color: #0073e6;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 15px;
+    text-align: center;
+}
+.popup-action-btn:hover {
+    background-color: #005bab;
+}
