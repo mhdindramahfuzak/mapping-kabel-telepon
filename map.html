@@ -11,63 +11,6 @@
 
     <link rel="stylesheet" href="css/style.css">
 
-    <style>
-        /* Tombol di popup awal */
-        .popup-main-btn {
-            display: block; /* Tombol jadi full width */
-            margin-top: 8px;
-            padding: 8px 10px;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .view-details-btn { background-color: #17a2b8; color: white; }
-        .view-details-btn:hover { background-color: #138496; }
-        .add-history-btn { background-color: #007bff; color: white; }
-        .add-history-btn:hover { background-color: #0056b3; }
-
-        /* Sidebar Views */
-        .sidebar-view { display: none; } /* Sembunyikan semua view by default */
-        .sidebar-view.active { display: block; } /* Tampilkan view yang aktif */
-
-        /* Detail View Specifics */
-        #details-view img {
-            max-width: 100%;
-            height: auto;
-            max-height: 200px;
-            display: block;
-            margin: 10px auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        #details-view .data-display p {
-            background-color: #f8f9fa;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #eee;
-            min-height: 20px; /* Agar terlihat meski kosong */
-            white-space: pre-wrap; /* Agar baris baru di deskripsi tampil */
-        }
-         #details-view .data-display strong {
-            display: block;
-            margin-bottom: 3px;
-            color: #555;
-            font-size: 0.9em;
-         }
-        .edit-form-section { display: none; } /* Sembunyikan form edit by default */
-        .edit-mode .edit-form-section { display: block; } /* Tampilkan form saat edit mode */
-        .edit-mode .data-display { display: none; } /* Sembunyikan display saat edit mode */
-        .edit-mode #toggle-edit-btn { display: none; } /* Sembunyikan tombol edit saat edit mode */
-
-        #delete-image-btn { background-color: #dc3545; margin-top: 5px;}
-        #delete-image-btn:hover { background-color: #c82333; }
-        #save-changes-btn { background-color: #28a745; }
-        #save-changes-btn:hover { background-color: #218838; }
-        #cancel-edit-btn { background-color: #6c757d; margin-top: 5px; }
-        #cancel-edit-btn:hover { background-color: #5a6268; }
-
-    </style>
 </head>
 <body>
 
@@ -94,12 +37,12 @@
                      <strong>Foto Terpasang:</strong>
                      <div id="display-image-container"><i>Memuat...</i></div>
                 </div>
-                <button id="toggle-edit-btn" class="btn-submit" style="background-color: #ffc107; color:#333;" onclick="toggleEditMode(true)">Edit Data Ini</button>
+                <button id="toggle-edit-btn" class="btn-submit btn-edit" onclick="toggleEditMode(true)" disabled>Edit Data Ini</button>
             </div>
 
             <div class="edit-form-section">
                 <form id="edit-form" enctype="multipart/form-data">
-                    <div class="form-group">
+                    <input type="hidden" name="id_tb" id="edit-form-id-tb"> <div class="form-group">
                         <label for="edit-form-deskripsi">Deskripsi:</label>
                         <textarea id="edit-form-deskripsi" name="deskripsi" rows="3"></textarea>
                     </div>
@@ -111,13 +54,15 @@
                         <label for="edit-form-foto">Upload Foto Baru (Ganti):</label>
                         <input type="file" id="edit-form-foto" name="foto" accept="image/*">
                     </div>
-                    <button type="button" id="delete-image-btn" class="btn-submit" onclick="deleteCurrentImage()">Hapus Foto Terpasang</button>
-                    <hr>
-                    <button type="submit" id="save-changes-btn" class="btn-submit">Simpan Perubahan</button>
-                    <button type="button" id="cancel-edit-btn" class="btn-submit" onclick="toggleEditMode(false)">Batal Edit</button>
-                     <div id="edit-form-status" style="margin-top: 10px;"></div>
+                    <button type="button" id="delete-image-btn" class="btn-submit btn-delete" onclick="deleteCurrentImage()" style="display: none;">Hapus Foto Terpasang</button>
+                    <hr style="margin: 15px 0;">
+                    <button type="submit" id="save-changes-btn" class="btn-submit btn-save">Simpan Perubahan</button>
+                    <button type="button" id="cancel-edit-btn" class="btn-submit btn-cancel" onclick="toggleEditMode(false)">Batal Edit</button>
+                     <div id="edit-form-status" class="form-status"></div>
                 </form>
             </div>
+             <hr>
+             <button type="button" class="btn-submit btn-secondary" onclick="closeSidebar()">Tutup Detail</button>
         </div>
 
         <div id="history-form-view" class="sidebar-view">
@@ -137,8 +82,10 @@
                     <label for="history-form-teknisi">Teknisi:</label>
                     <input type="text" id="history-form-teknisi" name="teknisi">
                 </div>
-                <button type="submit" class="btn-submit">Simpan Riwayat</button>
-                <div id="history-form-status" style="margin-top: 10px;"></div>
+                <button type="submit" class="btn-submit btn-save" disabled>Simpan Riwayat</button>
+                <div id="history-form-status" class="form-status"></div>
+                 <hr>
+                 <button type="button" class="btn-submit btn-secondary" onclick="closeSidebar()">Batal</button>
             </form>
         </div>
     </div>

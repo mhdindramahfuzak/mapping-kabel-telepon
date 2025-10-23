@@ -11,49 +11,81 @@ html, body {
 #map {
     width: 100vw;
     height: 100vh;
-    z-index: 1;
+    z-index: 1; /* Pastikan peta di bawah sidebar */
 }
 
 /* Styling Sidebar */
 #sidebar {
     position: fixed;
     top: 0;
-    right: -400px; /* Mulai dari luar layar */
-    width: 380px;
+    /* Mulai dari luar layar, sesuaikan -420px jika lebar + padding berbeda */
+    right: -420px;
+    width: 380px; /* Lebar konten sidebar */
     height: 100%;
     background: #ffffff;
     box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000; /* Di atas peta */
-    transition: right 0.3s ease-in-out;
+    z-index: 1000; /* Pastikan di atas peta */
+    transition: right 0.3s ease-in-out; /* Animasi slide */
     padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
+    box-sizing: border-box; /* Padding tidak menambah lebar total */
+    overflow-y: auto; /* Scroll jika konten panjang */
+    display: flex; /* Menggunakan flexbox untuk layout internal */
+    flex-direction: column; /* Konten ditumpuk vertikal */
 }
 
 /* Kelas untuk menampilkan sidebar */
 #sidebar.sidebar-open {
-    right: 0;
+    right: 0; /* Pindahkan ke layar */
 }
 
 /* Tombol Tutup Sidebar */
 #close-sidebar {
-    position: absolute;
+    position: absolute; /* Relatif terhadap sidebar */
     top: 10px;
-    right: 20px;
+    right: 15px;
     font-size: 2rem;
+    line-height: 1;
     background: none;
     border: none;
     cursor: pointer;
     color: #888;
+    padding: 5px; /* Area klik lebih mudah */
+    z-index: 1010; /* Di atas konten sidebar */
 }
 #close-sidebar:hover {
     color: #333;
 }
 
 #sidebar h2 {
-    margin-top: 20px;
+    margin-top: 10px; /* Kurangi margin atas sedikit */
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
     color: #333;
+    flex-shrink: 0; /* Mencegah heading mengecil */
 }
+
+#sidebar p {
+    margin-bottom: 15px; /* Jarak antar paragraf */
+    color: #555;
+    flex-shrink: 0;
+}
+#sidebar p b {
+    color: #005bab; /* Warna biru Pertamina untuk nama TB */
+}
+
+/* Styling Views dalam Sidebar */
+.sidebar-view {
+    display: none; /* Sembunyikan semua view by default */
+    margin-top: 15px;
+    flex-grow: 1; /* Biarkan view mengisi ruang tersisa */
+    min-height: 0; /* Penting untuk flexbox overflow */
+    overflow-y: auto; /* Scroll internal view jika perlu */
+}
+.sidebar-view.active {
+    display: block; /* Tampilkan view yang aktif */
+}
+
 
 /* Styling Form di Sidebar */
 .form-group {
@@ -64,204 +96,120 @@ html, body {
     margin-bottom: 5px;
     font-weight: bold;
     color: #555;
+    font-size: 0.9em;
 }
 .form-group input[type="date"],
 .form-group input[type="text"],
+.form-group input[type="file"],
 .form-group textarea {
     width: 100%;
-    padding: 8px;
+    padding: 8px 10px;
     box-sizing: border-box; /* Agar padding tidak menambah lebar */
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 0.95em;
 }
-.btn-submit {
-    background-color: #28a745;
-    color: white;
+textarea {
+    min-height: 60px; /* Minimal tinggi textarea */
+}
+
+/* Styling Tombol Umum di Sidebar & Popup */
+.btn-submit, .popup-main-btn {
+    display: block; /* Agar full width */
+    width: 100%;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    width: 100%;
+    font-size: 0.95em;
+    text-align: center;
+    margin-top: 8px; /* Jarak antar tombol */
+    box-sizing: border-box;
+    text-decoration: none; /* Untuk link */
+    color: white; /* Default warna teks putih */
 }
-.btn-submit:hover {
-    background-color: #218838;
-}
-#form-status {
+
+/* Variasi Warna Tombol */
+.btn-save { background-color: #28a745; }
+.btn-save:hover { background-color: #218838; }
+.btn-edit { background-color: #ffc107; color: #333; }
+.btn-edit:hover { background-color: #e0a800; }
+.btn-delete { background-color: #dc3545; }
+.btn-delete:hover { background-color: #c82333; }
+.btn-cancel, .btn-secondary { background-color: #6c757d; }
+.btn-cancel:hover, .btn-secondary:hover { background-color: #5a6268; }
+.view-details-btn { background-color: #17a2b8; } /* Info */
+.view-details-btn:hover { background-color: #138496; }
+.add-history-btn { background-color: #007bff; } /* Primary */
+.add-history-btn:hover { background-color: #0056b3; }
+
+
+/* Status Message */
+.form-status {
     margin-top: 10px;
     font-size: 0.9em;
+    padding: 5px;
 }
+.form-status span {
+    padding: 5px 8px;
+    border-radius: 3px;
+    display: block;
+}
+.form-status .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
+.form-status .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
+.form-status .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;}
+
 
 /* Styling untuk Popup di Peta */
 .leaflet-popup-content-wrapper {
-    border-radius: 8px;
-}
-.leaflet-popup-content {
-    margin: 15px;
-    font-size: 14px;
-    line-height: 1.6;
-    max-height: 350px;
-    overflow-y: auto;
-    width: 300px !important;
-}
-.popup-header {
-    margin-bottom: 10px;
-}
-.popup-header h3 {
-    margin: 0;
-    color: #005bab;
-}
-.popup-header p {
-    margin: 5px 0;
-    font-size: 0.9em;
-    color: #555;
-    font-style: italic;
-}
-.popup-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
     border-radius: 5px;
-    margin-bottom: 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
-.popup-section-title {
-    font-weight: bold;
-    margin-top: 15px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 3px;
-}
-.popup-history-item {
-    font-size: 0.9em;
-    padding: 8px;
-    border-bottom: 1px solid #f0f0f0;
-}
-.popup-history-item:last-child {
-    border-bottom: none;
-}
-.history-date {
-    font-weight: bold;
-    color: #333;
-}
-.history-keterangan {
-    color: #444;
-}
-.history-teknisi {
-    font-style: italic;
-    color: #777;
-    font-size: 0.9em;
-}
-.popup-action-btn {
-    background-color: #0073e6;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    width: 100%;
-    margin-top: 15px;
-    text-align: center;
-}
-.popup-action-btn:hover {
-    background-color: #005bab;
-}
-/* ... (CSS Anda yang sudah ada) ... */
-
-/* Styling Sidebar */
-#sidebar {
-    /* ... (style sidebar yg ada) ... */
-    width: 400px; /* Mungkin perlu sedikit lebih lebar */
-    right: -420px; /* Sesuaikan agar benar2 tersembunyi */
-}
-#sidebar.sidebar-open { right: 0; }
-
-/* Styling Views dalam Sidebar */
-.sidebar-view {
-    display: none; /* Sembunyikan semua view by default */
-    margin-top: 15px;
-}
-.sidebar-view.active {
-    display: block; /* Tampilkan view yang aktif */
-}
-
-#sidebar h2 {
-    margin-top: 10px; /* Kurangi margin atas sedikit */
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
-}
-
-#sidebar p {
-    margin-bottom: 15px; /* Jarak antar paragraf */
-}
-
-/* Tombol Tutup Sidebar */
-#close-sidebar { /* Pastikan ini ada */
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 2rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #888;
-    line-height: 1;
-}
-#close-sidebar:hover { color: #333; }
-
-/* Styling Form di Sidebar (biarkan seperti sebelumnya) */
-.form-group { margin-bottom: 15px; }
-/* ... (lanjutkan style form group) ... */
-
-/* Styling untuk Popup di Peta */
-.leaflet-popup-content-wrapper { border-radius: 5px; } /* Sedikit lebih kecil radiusnya */
 .leaflet-popup-content {
-    margin: 12px 18px; /* Sedikit padding */
-    font-size: 13px; /* Sedikit lebih kecil */
+    margin: 12px 18px !important; /* Override Leaflet margin */
+    font-size: 13px;
     line-height: 1.5;
-    /* max-height: 300px; */ /* Hapus atau kurangi max-height awal agar tidak terlalu tinggi */
+    /* Dihapus: max-height: 300px; */ /* Biarkan konten menentukan tinggi */
     overflow-y: auto;
-    width: 280px !important; /* Sedikit lebih kecil lebarnya */
+    width: 260px !important; /* Sedikit lebih kecil agar tombol pas */
 }
-
-/* Tombol di Popup */
-.popup-main-btn {
+.leaflet-popup-content b {
+    color: #005bab; /* Biru Pertamina */
+    font-size: 1.1em;
     display: block;
-    width: calc(100% - 16px); /* Sedikit padding kiri kanan */
-    margin: 8px auto 0 auto; /* Tengah dan ada jarak atas */
-    padding: 8px 10px;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    border: none;
+    margin-bottom: 5px;
 }
-.view-details-btn { background-color: #17a2b8; color: white; }
-.view-details-btn:hover { background-color: #138496; }
-.add-history-btn { background-color: #007bff; color: white; }
-.add-history-btn:hover { background-color: #0056b3; }
 
-/* ... (Style popup lainnya biarkan seperti sebelumnya, mungkin hapus .popup-action-btn jika tidak dipakai lagi di popup awal) ... */
+/* Styling untuk Tooltip (Label KML) */
+.kml-label {
+    background-color: rgba(255, 255, 255, 0.75); /* Latar belakang semi-transparan */
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: none;
+    font-weight: bold;
+    font-size: 9px; /* Ukuran font lebih kecil */
+    padding: 1px 3px; /* Padding kecil */
+    white-space: nowrap; /* Mencegah teks wrap */
+    color: #333; /* Warna teks */
+    border-radius: 3px;
+}
 
 /* Styling Detail View di Sidebar */
 #details-view .data-display p {
     background-color: #f8f9fa;
-    padding: 8px;
+    padding: 10px;
     border-radius: 4px;
     border: 1px solid #eee;
-    min-height: 20px; /* Agar terlihat meski kosong */
-    white-space: pre-wrap; /* Agar baris baru di deskripsi tampil */
-    word-wrap: break-word; /* Agar teks panjang tidak keluar box */
+    min-height: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     font-size: 0.95em;
     color: #333;
+    margin-bottom: 10px; /* Jarak antar display */
 }
 #details-view .data-display strong {
    display: block;
-   margin-bottom: 3px;
+   margin-bottom: 4px;
    color: #555;
    font-size: 0.9em;
    font-weight: bold;
@@ -269,35 +217,38 @@ html, body {
 #display-image-container img {
     max-width: 100%;
     height: auto;
-    max-height: 200px; /* Batasi tinggi gambar */
+    max-height: 200px;
     display: block;
-    margin: 5px auto 10px auto; /* Tengah dan ada margin */
+    margin: 5px auto 10px auto;
     border: 1px solid #ddd;
     border-radius: 4px;
-    background-color: #f0f0f0; /* Background jika gambar gagal load */
+    background-color: #f0f0f0;
 }
-#display-image-container p { /* Style untuk pesan "Foto tidak tersedia" */
+#display-image-container p { /* Style untuk "Foto tidak tersedia" */
     font-style: italic;
     color: #888;
     text-align: center;
-    padding: 10px;
+    padding: 10px 0;
+    margin: 5px 0 10px 0;
+    background-color: #f8f9fa;
+    border: 1px solid #eee;
+    border-radius: 4px;
 }
 
 /* Styling Bagian Edit Form (tersembunyi by default) */
-.edit-form-section { display: none; margin-top: 15px; }
-#details-view.edit-mode .edit-form-section { display: block; } /* Tampilkan saat edit */
-#details-view.edit-mode .data-display { display: none; } /* Sembunyikan display saat edit */
-#details-view.edit-mode #toggle-edit-btn { display: none; } /* Sembunyikan tombol Edit saat edit */
+.edit-form-section { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+#details-view.edit-mode .edit-form-section { display: block; }
+#details-view.edit-mode .data-display { display: none; }
+#details-view.edit-mode #toggle-edit-btn { display: none; }
+#details-view.edit-mode hr { display: none; } /* Sembunyikan <hr> pemisah saat edit */
+#details-view.edit-mode .btn-secondary { display: none; } /* Sembunyikan tombol "Tutup Detail" saat edit */
 
-/* Style untuk tombol-tombol edit */
-#delete-image-btn { background-color: #dc3545; margin-top: 5px; width: 100%;}
-#delete-image-btn:hover { background-color: #c82333; }
-#save-changes-btn { background-color: #28a745; margin-top: 10px; width: 100%;}
-#save-changes-btn:hover { background-color: #218838; }
-#cancel-edit-btn { background-color: #6c757d; margin-top: 5px; width: 100%;}
-#cancel-edit-btn:hover { background-color: #5a6268; }
+#delete-image-btn { margin-top: 10px; } /* Jarak tombol hapus */
+#save-changes-btn { margin-top: 15px; } /* Jarak tombol simpan */
+#cancel-edit-btn { margin-top: 5px; } /* Jarak tombol batal */
 
-#edit-form-status, #history-form-status {
-    margin-top: 10px;
-    font-size: 0.9em;
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
 }
