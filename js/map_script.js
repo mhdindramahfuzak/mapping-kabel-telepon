@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
+        maxZoom: 18     ,
         attribution: 'Tiles © Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     });
 
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTbData = null; // Cache data terakhir yg dibuka popupnya
     let currentKmlCoords = { lat: null, lng: null };
 
-    // --- Elemen Sidebar & Form (Sama seperti sebelumnya) ---
+    // --- Elemen Sidebar & Form ---
     const sidebar = document.getElementById('sidebar');
     const detailsView = document.getElementById('details-view');
     const historyFormView = document.getElementById('history-form-view');
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const details = data.details || {};
                 let popupContent = `<b>${placemarkName}</b><br>`;
 
-                // Tambahkan gambar jika ada
+                // Tambahkan gambar jika ada (DENGAN CACHE BUSTING)
                 if (details.foto) {
                     popupContent += `<img src="uploads/${details.foto}?t=${new Date().getTime()}" alt="Foto ${placemarkName}" class="popup-image"><br>`; // Tambahkan class CSS
                 } else {
@@ -128,8 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const lat = coordinates[1];
                     const lng = coordinates[0];
 
-                    // **Jangan bind popup di sini lagi**
-
                     // Tambahkan event listener untuk klik
                     layer.on('click', function(e) {
                         L.DomEvent.stopPropagation(e); // Hentikan event agar tidak konflik jika ada listener lain
@@ -137,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
 
-                    // Tooltip (Label) Permanen (Tetap ada)
+                    // Tooltip (Label) Permanen
                     layer.bindTooltip(placemarkName, {
                         permanent: true,
                         direction: 'right',
@@ -145,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         className: 'kml-label'
                     });
 
-                    // Hapus event listener lama untuk popupopen/close jika ada (opsional, untuk kebersihan)
+                    // Hapus event listener lama untuk popupopen/close jika ada
                     layer.off('popupopen');
                     layer.off('popupclose');
 
@@ -184,7 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
         editFormStatus.innerHTML = '';
         historyFormStatus.className = 'form-status';
         editFormStatus.className = 'form-status';
-        // Tidak perlu reset currentTbData di sini, mungkin masih relevan dari popup
 
         // Tampilkan loading & set nama TB
         if (mode === 'details') {
@@ -204,11 +201,11 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebar.classList.add('sidebar-open');
         console.log("Sidebar class added: sidebar-open");
 
-        // Ambil data terbaru untuk mengisi sidebar (penting agar data selalu fresh)
+        // Ambil data terbaru untuk mengisi sidebar
         fetchDataForSidebar(nama_tb, mode);
     }
 
-    // Fungsi untuk mengambil data & mengisi sidebar (sama seperti sebelumnya)
+    // Fungsi untuk mengambil data & mengisi sidebar
     function fetchDataForSidebar(nama_tb, mode) {
         console.log(`Fetching data for sidebar: ${nama_tb}`);
         fetch(`api/get_data.php?nama_tb=${encodeURIComponent(nama_tb)}`)
@@ -220,13 +217,11 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 console.log("Data received for sidebar:", data);
-                // Kita update currentTbData di sini juga untuk konsistensi,
-                // meskipun mungkin sudah ada dari popup
                 currentTbData = data;
                 const details = data.details || {};
                 const idTb = details.id || '';
 
-                toggleEditBtn.disabled = false; // Selalu aktifkan tombol edit
+                toggleEditBtn.disabled = false; // Selalu aktifkan tombol edit setelah data (atau info tidak ada) didapat
 
                 if (mode === 'details') {
                     detailsViewIdTbInput.value = idTb;
@@ -235,28 +230,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     displayDeskripsi.innerText = details.deskripsi || (idTb ? 'Belum ada deskripsi.' : 'Data belum ada di database.');
                     displayArahKabel.innerText = details.arah_kabel || (idTb ? 'Tidak ada data.' : 'Data belum ada di database.');
 
+                    // Tampilkan gambar (DENGAN CACHE BUSTING)
                     if (details.foto) {
                         displayImageContainer.innerHTML = `<img src="uploads/${details.foto}?t=${new Date().getTime()}" alt="Foto ${details.nama_tb || nama_tb}">`;
-                        deleteImageBtn.style.display = 'block';
+                        deleteImageBtn.style.display = 'block'; // Tampilkan tombol hapus jika ada foto
                     } else {
                         displayImageContainer.innerHTML = `<p><i>Foto tidak tersedia.</i></p>`;
-                        deleteImageBtn.style.display = 'none';
+                        deleteImageBtn.style.display = 'none'; // Sembunyikan tombol hapus jika tidak ada foto
                     }
 
                 } else if (mode === 'history') {
                     historyFormIdTbInput.value = idTb;
-                    saveHistoryBtn.disabled = !idTb;
+                    saveHistoryBtn.disabled = !idTb; // Aktifkan tombol simpan HANYA jika ID ada
                     if (!idTb) {
                         setFormStatus(historyFormStatus, 'info', 'Data TB ini belum ada di database. Silakan edit detail terlebih dahulu untuk menambahkannya.');
                     } else {
-                        setFormStatus(historyFormStatus, '', '');
+                        setFormStatus(historyFormStatus, '', ''); // Hapus pesan jika ID ada
                     }
                 }
             })
             .catch(error => {
                 console.error('Error fetching data for sidebar:', error);
-                // Hanya reset data jika *sidebar* gagal fetch, jangan ganggu data popup
-                // currentTbData = null;
                 if (mode === 'details') {
                     displayDeskripsi.innerText = 'Gagal memuat data.';
                     displayArahKabel.innerText = 'Gagal memuat data.';
@@ -273,53 +267,54 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Fungsi global untuk menutup sidebar (Sama seperti sebelumnya)
+    // Fungsi global untuk menutup sidebar
     window.closeSidebar = function() {
         sidebar.classList.remove('sidebar-open');
         console.log("Sidebar class removed: sidebar-open");
-         // Tidak perlu reset currentTbData/Coords di sini, biarkan sampai popup lain dibuka/ditutup
          toggleEditMode(false);
          document.querySelectorAll('.sidebar-view').forEach(v => v.classList.remove('active'));
     }
 
-    // Fungsi global untuk toggle mode edit di sidebar (Sama seperti sebelumnya)
+    // Fungsi global untuk toggle mode edit di sidebar
     window.toggleEditMode = function(enable) {
         const idExists = currentTbData?.details?.id;
         if (enable) {
             console.log("Enabling edit mode");
             detailsView.classList.add('edit-mode');
+            // Isi form dengan data saat ini dari cache
             editFormDeskripsi.value = currentTbData?.details?.deskripsi || '';
             editFormArahKabel.value = currentTbData?.details?.arah_kabel || '';
-            editFormFotoInput.value = '';
+            editFormFotoInput.value = ''; // Kosongkan input file
+            // Tampilkan tombol hapus hanya jika ada ID dan ada foto
             deleteImageBtn.style.display = (idExists && currentTbData?.details?.foto) ? 'block' : 'none';
         } else {
              console.log("Disabling edit mode");
             detailsView.classList.remove('edit-mode');
-            setFormStatus(editFormStatus, '', '');
+            setFormStatus(editFormStatus, '', ''); // Bersihkan status form edit
         }
     }
 
-    // Fungsi helper untuk menampilkan status form (Sama seperti sebelumnya)
+    // Fungsi helper untuk menampilkan status form
     function setFormStatus(element, type, message) {
         element.innerHTML = message ? `<span class="${type}">${message}</span>` : '';
-        element.className = `form-status ${type}`;
+        element.className = `form-status ${type}`; // Set kelas untuk styling
     }
 
-    // --- Event Listener untuk Form (Sama seperti sebelumnya) ---
+    // --- Event Listener untuk Form ---
 
     // Submit form riwayat
     historyForm.addEventListener('submit', function(e) {
         e.preventDefault();
         setFormStatus(historyFormStatus, 'info', 'Menyimpan Riwayat...');
         const formData = new FormData(historyForm);
-        // const nama_tb = document.getElementById('history-sidebar-tb-name').innerText; // Tidak perlu refresh popup dari sini
 
         fetch('api/tambah_riwayat.php', { method: 'POST', body: formData })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                 setFormStatus(historyFormStatus, 'success', 'Riwayat berhasil disimpan!');
-                historyForm.reset();
+                historyForm.reset(); // Kosongkan form
+                // Tutup sidebar setelah beberapa saat
                 setTimeout(() => { closeSidebar(); }, 1500);
             } else {
                 setFormStatus(historyFormStatus, 'error', `Error: ${data.message || 'Gagal menyimpan riwayat.'}`);
@@ -338,14 +333,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(editForm);
         const nama_tb = document.getElementById('details-sidebar-tb-name').innerText;
 
+        // Tambahkan nama_tb dari KML (penting untuk INSERT baru)
         formData.append('nama_tb_kml', nama_tb);
-        if (currentKmlCoords.lat !== null && currentKmlCoords.lng !== null) {
+
+        // Tambahkan koordinat jika belum ada ID (untuk INSERT baru)
+        if (!formData.get('id_tb') && currentKmlCoords.lat !== null && currentKmlCoords.lng !== null) {
             formData.append('latitude', currentKmlCoords.lat);
             formData.append('longitude', currentKmlCoords.lng);
-        } else {
-             console.warn("Koordinat KML tidak tersedia saat menyimpan.");
-             // Anda bisa memutuskan apakah akan lanjut atau tidak
+        } else if (!formData.get('id_tb')) {
+             console.warn("Koordinat KML tidak tersedia saat menyimpan entri baru.");
+             // Mungkin beri peringatan ke user atau batalkan submit
+             setFormStatus(editFormStatus, 'error', 'Error: Koordinat KML tidak ditemukan untuk entri baru.');
+             return; // Hentikan proses submit jika koordinat penting
         }
+
 
         fetch('api/update_tb.php', { method: 'POST', body: formData })
         .then(response => response.json())
@@ -358,27 +359,39 @@ document.addEventListener('DOMContentLoaded', function() {
                      editFormIdTbInput.value = data.new_id;
                      detailsViewIdTbInput.value = data.new_id;
                      // Update data cache jika ada
-                     if (currentTbData && currentTbData.details) currentTbData.details.id = data.new_id;
+                     if (currentTbData) {
+                         if(!currentTbData.details) currentTbData.details = {}; // Buat objek details jika belum ada
+                         currentTbData.details.id = data.new_id;
+                     }
                      console.log("New entry created with ID:", data.new_id);
                 }
 
                 // Update data foto di cache jika ada foto baru
                 if (data.new_photo && currentTbData && currentTbData.details) {
                     currentTbData.details.foto = data.new_photo;
+                } else if (data.new_photo === null && currentTbData && currentTbData.details) {
+                     // Jika response menandakan foto dihapus (misalnya `delete_image.php` dipanggil terpisah)
+                     // Atau jika update_tb.php mengembalikan null/kosong untuk foto
+                     currentTbData.details.foto = null;
                 }
 
 
                 // Tunggu sebentar lalu refresh data sidebar & matikan mode edit
                 setTimeout(() => {
-                    fetchDataForSidebar(nama_tb, 'details'); // Refresh view sidebar
+                    fetchDataForSidebar(nama_tb, 'details'); // Refresh view sidebar dengan data terbaru
                     toggleEditMode(false); // Kembali ke mode view
-                }, 1000);
+                }, 1000); // Tunggu 1 detik
 
                  // Refresh popup jika marker yang sesuai masih aktif dan terbuka
                  if (currentMarker && currentMarker.feature.properties.name === nama_tb && currentMarker.isPopupOpen()) {
                     console.log("Refreshing active popup after save...");
                     // Panggil ulang showPopupWithDetails agar popup ikut terupdate
-                    showPopupWithDetails(currentMarker, nama_tb, currentKmlCoords.lat, currentKmlCoords.lng);
+                    // Pastikan koordinat masih tersimpan di currentKmlCoords
+                    if(currentKmlCoords.lat !== null && currentKmlCoords.lng !== null){
+                       showPopupWithDetails(currentMarker, nama_tb, currentKmlCoords.lat, currentKmlCoords.lng);
+                    } else {
+                       console.warn("Cannot refresh popup: KML coordinates lost.");
+                    }
                  }
 
             } else {
@@ -391,15 +404,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Fungsi global untuk menghapus gambar saat ini (Sama seperti sebelumnya, tapi refresh popup juga)
+    // Fungsi global untuk menghapus gambar saat ini
     window.deleteCurrentImage = function() {
         const id_tb = editFormIdTbInput.value;
         const nama_tb = document.getElementById('details-sidebar-tb-name').innerText;
 
-        if (!id_tb || !currentTbData?.details?.foto) {
-             setFormStatus(editFormStatus, 'info', 'Tidak ada gambar terpasang atau ID TB tidak valid.');
+        if (!id_tb) {
+             setFormStatus(editFormStatus, 'info', 'Tidak bisa menghapus foto karena data TB belum tersimpan di database.');
             return;
         }
+        if (!currentTbData?.details?.foto){
+            setFormStatus(editFormStatus, 'info', 'Tidak ada foto yang terpasang untuk dihapus.');
+            return;
+        }
+
          if (!confirm('Anda yakin ingin menghapus foto ini secara permanen?')) {
             return;
          }
@@ -417,15 +435,28 @@ document.addEventListener('DOMContentLoaded', function() {
                  setFormStatus(editFormStatus, 'success', 'Foto berhasil dihapus!');
 
                  // Update data cache
-                 if(currentTbData && currentTbData.details) currentTbData.details.foto = null;
+                 if(currentTbData && currentTbData.details) {
+                     currentTbData.details.foto = null; // Set foto jadi null di cache
+                 }
 
-                 // Refresh data sidebar
-                 fetchDataForSidebar(nama_tb, 'details');
+                 // Langsung update tampilan di form edit dan tombol hapus
+                 editFormFotoInput.value = ''; // Kosongkan input file
+                 deleteImageBtn.style.display = 'none'; // Sembunyikan tombol hapus
+
+                 // Refresh data sidebar setelah jeda singkat
+                 setTimeout(() => {
+                    fetchDataForSidebar(nama_tb, 'details');
+                 }, 500);
+
 
                  // Refresh popup jika marker yang sesuai masih aktif dan terbuka
                  if (currentMarker && currentMarker.feature.properties.name === nama_tb && currentMarker.isPopupOpen()) {
                     console.log("Refreshing active popup after delete...");
-                    showPopupWithDetails(currentMarker, nama_tb, currentKmlCoords.lat, currentKmlCoords.lng);
+                    if(currentKmlCoords.lat !== null && currentKmlCoords.lng !== null){
+                       showPopupWithDetails(currentMarker, nama_tb, currentKmlCoords.lat, currentKmlCoords.lng);
+                    } else {
+                       console.warn("Cannot refresh popup: KML coordinates lost.");
+                    }
                  }
 
             } else {

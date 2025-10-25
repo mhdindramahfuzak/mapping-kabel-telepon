@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Perbaikan - Pemetaan Jaringan</title>
+    <link rel="stylesheet" href="css/style.css"> <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+             overflow-x: hidden; /* Mencegah scroll horizontal jika tabel lebar */
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #005bab;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e2e6ea;
+        }
+        .loading, .no-data {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #6c757d;
+        }
+        .back-link {
+             display: inline-block;
+             margin-bottom: 20px;
+             padding: 8px 15px;
+             background-color: #6c757d;
+             color: white;
+             text-decoration: none;
+             border-radius: 4px;
+             font-size: 0.9em;
+         }
+         .back-link:hover {
+             background-color: #5a6268;
+         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">&laquo; Kembali ke Halaman Utama</a>
+        <h1>Riwayat Perbaikan Terminal Box</h1>
+
+        <div id="riwayat-content">
+            <p class="loading">Memuat data riwayat...</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Terminal Box</th>
+                        <th>Tanggal Perbaikan</th>
+                        <th>Keterangan</th>
+                        <th>Teknisi</th>
+                    </tr>
+                </thead>
+                <tbody id="riwayat-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/riwayat.js"></script>
+</body>
+</html>

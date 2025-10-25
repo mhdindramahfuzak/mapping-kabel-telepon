@@ -3,97 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peta Jaringan - RU II Sei Pakning</title>
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-
-    <link rel="stylesheet" href="css/style.css">
-
+    <title>Pemetaan Jaringan Telepon - RU II Sei Pakning</title>
+    <link rel="stylesheet" href="css/style.css"> <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            background-color: #f4f4f4; /* Warna latar belakang lembut */
+            font-family: Arial, sans-serif;
+            margin: 0; /* Hapus margin default body */
+            overflow: hidden; /* Mencegah scroll di landing page */
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #005bab; /* Warna biru Pertamina */
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 200px; /* Atur ukuran logo */
+            margin-bottom: 30px;
+        }
+        .nav-button {
+            display: inline-block; /* Agar bisa atur margin */
+            padding: 12px 25px;
+            margin: 10px;
+            background-color: #007bff; /* Warna tombol biru */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            border: none; /* Hapus border default */
+            cursor: pointer; /* Tampilan pointer */
+        }
+        .nav-button:hover {
+            background-color: #0056b3; /* Warna hover lebih gelap */
+        }
+         .nav-button-secondary {
+             background-color: #6c757d; /* Warna abu-abu untuk tombol sekunder */
+         }
+         .nav-button-secondary:hover {
+             background-color: #5a6268;
+         }
+    </style>
 </head>
 <body>
-
-    <div id="map"></div>
-
-    <div id="sidebar">
-        <button id="close-sidebar" onclick="closeSidebar()">&times;</button>
-
-        <div id="details-view" class="sidebar-view">
-            <h2>Detail Terminal Box</h2>
-            <p>Data untuk: <b id="details-sidebar-tb-name"></b></p>
-            <input type="hidden" id="details-view-id-tb">
-
-            <div class="data-display">
-                <div class="form-group">
-                    <strong>Deskripsi:</strong>
-                    <p id="display-deskripsi"><i>Memuat...</i></p>
-                </div>
-                <div class="form-group">
-                    <strong>Arah Kabel:</strong>
-                    <p id="display-arah-kabel"><i>Memuat...</i></p>
-                </div>
-                <div class="form-group">
-                     <strong>Foto Terpasang:</strong>
-                     <div id="display-image-container"><i>Memuat...</i></div>
-                </div>
-                <button id="toggle-edit-btn" class="btn-submit btn-edit" onclick="toggleEditMode(true)">Edit Data Ini</button>
-            </div>
-
-            <div class="edit-form-section">
-                <form id="edit-form" enctype="multipart/form-data">
-                    <input type="hidden" name="id_tb" id="edit-form-id-tb"> <div class="form-group">
-                        <label for="edit-form-deskripsi">Deskripsi:</label>
-                        <textarea id="edit-form-deskripsi" name="deskripsi" rows="3"></textarea>
-                    </div>
-                     <div class="form-group">
-                        <label for="edit-form-arah-kabel">Arah Kabel:</label>
-                        <textarea id="edit-form-arah-kabel" name="arah_kabel" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-form-foto">Upload Foto Baru (Ganti):</label>
-                        <input type="file" id="edit-form-foto" name="foto" accept="image/*">
-                    </div>
-                    <button type="button" id="delete-image-btn" class="btn-submit btn-delete" onclick="deleteCurrentImage()">Hapus Foto Terpasang</button>
-                    <hr>
-                    <button type="submit" id="save-changes-btn" class="btn-submit btn-save">Simpan Perubahan</button>
-                    <button type="button" id="cancel-edit-btn" class="btn-submit btn-cancel" onclick="toggleEditMode(false)">Batal Edit</button>
-                     <div id="edit-form-status" class="form-status"></div>
-                </form>
-            </div>
-             <hr>
-             <button class="btn-submit btn-secondary" onclick="closeSidebar()">Tutup Detail</button>
-        </div>
-
-        <div id="history-form-view" class="sidebar-view">
-            <h2>Tambah Riwayat Perbaikan</h2>
-            <p>Menambah riwayat untuk: <b id="history-sidebar-tb-name"></b></p>
-            <form id="history-form">
-                <input type="hidden" id="history-form-id-tb" name="id_tb">
-                <div class="form-group">
-                    <label for="history-form-tanggal">Tanggal:</label>
-                    <input type="date" id="history-form-tanggal" name="tanggal" required>
-                </div>
-                <div class="form-group">
-                    <label for="history-form-keterangan">Keterangan:</label>
-                    <textarea id="history-form-keterangan" name="keterangan" rows="5" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="history-form-teknisi">Teknisi:</label>
-                    <input type="text" id="history-form-teknisi" name="teknisi">
-                </div>
-                <button type="submit" class="btn-submit btn-save">Simpan Riwayat</button>
-                <div id="history-form-status" class="form-status"></div>
-                 <hr>
-                 <button type="button" class="btn-submit btn-secondary" onclick="closeSidebar()">Batal</button>
-            </form>
+    <div class="container">
+        <img src="img/logo_pertamina.png" alt="Logo Pertamina" class="logo">
+        <h1>Sistem Informasi Pemetaan<br>Jaringan Telepon</h1>
+        <p>RU II Sei Pakning</p>
+        <div>
+            <a href="map.html" class="nav-button">Buka Peta Jaringan</a>
+            <a href="riwayat.html" class="nav-button nav-button-secondary">Lihat Riwayat Perbaikan</a>
         </div>
     </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-omnivore/0.3.4/leaflet-omnivore.min.js"></script>
-    <script src="js/map_script.js"></script>
 </body>
 </html>
