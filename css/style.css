@@ -18,29 +18,28 @@ html, body {
 #sidebar {
     position: fixed;
     top: 0;
-    /* Mulai dari luar layar, sesuaikan -420px jika lebar + padding berbeda */
     right: -420px;
-    width: 380px; /* Lebar konten sidebar */
+    width: 380px;
     height: 100%;
     background: #ffffff;
     box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000; /* Pastikan di atas peta */
-    transition: right 0.3s ease-in-out; /* Animasi slide */
+    z-index: 1000;
+    transition: right 0.3s ease-in-out;
     padding: 20px;
-    box-sizing: border-box; /* Padding tidak menambah lebar total */
-    overflow-y: auto; /* Scroll jika konten panjang */
-    display: flex; /* Menggunakan flexbox untuk layout internal */
-    flex-direction: column; /* Konten ditumpuk vertikal */
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Kelas untuk menampilkan sidebar */
 #sidebar.sidebar-open {
-    right: 0; /* Pindahkan ke layar */
+    right: 0;
 }
 
 /* Tombol Tutup Sidebar */
 #close-sidebar {
-    position: absolute; /* Relatif terhadap sidebar */
+    position: absolute;
     top: 10px;
     right: 15px;
     font-size: 2rem;
@@ -49,41 +48,41 @@ html, body {
     border: none;
     cursor: pointer;
     color: #888;
-    padding: 5px; /* Area klik lebih mudah */
-    z-index: 1010; /* Di atas konten sidebar */
+    padding: 5px;
+    z-index: 1010;
 }
 #close-sidebar:hover {
     color: #333;
 }
 
 #sidebar h2 {
-    margin-top: 10px; /* Kurangi margin atas sedikit */
+    margin-top: 10px;
     margin-bottom: 10px;
     padding-bottom: 5px;
     border-bottom: 1px solid #eee;
     color: #333;
-    flex-shrink: 0; /* Mencegah heading mengecil */
+    flex-shrink: 0;
 }
 
 #sidebar p {
-    margin-bottom: 15px; /* Jarak antar paragraf */
+    margin-bottom: 15px;
     color: #555;
     flex-shrink: 0;
 }
 #sidebar p b {
-    color: #005bab; /* Warna biru Pertamina untuk nama TB */
+    color: #005bab; /* Warna biru Pertamina */
 }
 
 /* Styling Views dalam Sidebar */
 .sidebar-view {
-    display: none; /* Sembunyikan semua view by default */
+    display: none;
     margin-top: 15px;
-    flex-grow: 1; /* Biarkan view mengisi ruang tersisa */
-    min-height: 0; /* Penting untuk flexbox overflow */
-    overflow-y: auto; /* Scroll internal view jika perlu */
+    flex-grow: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 .sidebar-view.active {
-    display: block; /* Tampilkan view yang aktif */
+    display: block;
 }
 
 
@@ -104,18 +103,18 @@ html, body {
 .form-group textarea {
     width: 100%;
     padding: 8px 10px;
-    box-sizing: border-box; /* Agar padding tidak menambah lebar */
+    box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 0.95em;
 }
 textarea {
-    min-height: 60px; /* Minimal tinggi textarea */
+    min-height: 60px;
 }
 
 /* Styling Tombol Umum di Sidebar & Popup */
 .btn-submit, .popup-main-btn {
-    display: block; /* Agar full width */
+    display: block;
     width: 100%;
     padding: 10px 15px;
     border: none;
@@ -124,10 +123,10 @@ textarea {
     font-weight: bold;
     font-size: 0.95em;
     text-align: center;
-    margin-top: 8px; /* Jarak antar tombol */
+    margin-top: 8px;
     box-sizing: border-box;
-    text-decoration: none; /* Untuk link */
-    color: white; /* Default warna teks putih */
+    text-decoration: none;
+    color: white;
 }
 
 /* Variasi Warna Tombol */
@@ -167,12 +166,13 @@ textarea {
     box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
 .leaflet-popup-content {
-    margin: 12px 18px !important; /* Override Leaflet margin */
+    margin: 12px 18px !important;
     font-size: 13px;
     line-height: 1.5;
-    /* Dihapus: max-height: 300px; */ /* Biarkan konten menentukan tinggi */
     overflow-y: auto;
-    width: 260px !important; /* Sedikit lebih kecil agar tombol pas */
+    width: auto !important; /* Biarkan lebar menyesuaikan konten */
+    min-width: 200px; /* Lebar minimum popup */
+    max-width: 280px; /* Lebar maksimum popup */
 }
 .leaflet-popup-content b {
     color: #005bab; /* Biru Pertamina */
@@ -180,17 +180,25 @@ textarea {
     display: block;
     margin-bottom: 5px;
 }
+.leaflet-popup-content .popup-image {
+    max-width: 150px;
+    height: auto;
+    display: block;
+    margin: 8px auto 8px 0;
+    border: 1px solid #eee;
+    border-radius: 3px;
+}
 
 /* Styling untuk Tooltip (Label KML) */
 .kml-label {
-    background-color: rgba(255, 255, 255, 0.75); /* Latar belakang semi-transparan */
+    background-color: rgba(255, 255, 255, 0.75);
     border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: none;
     font-weight: bold;
-    font-size: 9px; /* Ukuran font lebih kecil */
-    padding: 1px 3px; /* Padding kecil */
-    white-space: nowrap; /* Mencegah teks wrap */
-    color: #333; /* Warna teks */
+    font-size: 9px;
+    padding: 1px 3px;
+    white-space: nowrap;
+    color: #333;
     border-radius: 3px;
 }
 
@@ -205,7 +213,7 @@ textarea {
     word-wrap: break-word;
     font-size: 0.95em;
     color: #333;
-    margin-bottom: 10px; /* Jarak antar display */
+    margin-bottom: 10px;
 }
 #details-view .data-display strong {
    display: block;
@@ -235,17 +243,17 @@ textarea {
     border-radius: 4px;
 }
 
-/* Styling Bagian Edit Form (tersembunyi by default) */
+/* Styling Bagian Edit Form */
 .edit-form-section { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
 #details-view.edit-mode .edit-form-section { display: block; }
 #details-view.edit-mode .data-display { display: none; }
 #details-view.edit-mode #toggle-edit-btn { display: none; }
-#details-view.edit-mode hr { display: none; } /* Sembunyikan <hr> pemisah saat edit */
-#details-view.edit-mode .btn-secondary { display: none; } /* Sembunyikan tombol "Tutup Detail" saat edit */
+#details-view.edit-mode hr { display: none; }
+#details-view.edit-mode .btn-secondary { display: none; }
 
-#delete-image-btn { margin-top: 10px; } /* Jarak tombol hapus */
-#save-changes-btn { margin-top: 15px; } /* Jarak tombol simpan */
-#cancel-edit-btn { margin-top: 5px; } /* Jarak tombol batal */
+#delete-image-btn { margin-top: 10px; }
+#save-changes-btn { margin-top: 15px; }
+#cancel-edit-btn { margin-top: 5px; }
 
 hr {
     border: none;
@@ -253,19 +261,27 @@ hr {
     margin: 20px 0;
 }
 
-/* Styling untuk gambar di dalam popup Leaflet */
-.leaflet-popup-content .popup-image {
-    max-width: 150px; /* Batasi lebar maksimum gambar */
-    height: auto;     /* Biarkan tinggi menyesuaikan */
-    display: block;   /* Agar margin berfungsi */
-    margin: 8px auto 8px 0; /* Jarak atas/bawah, rata kiri */
-    border: 1px solid #eee; /* Optional: border tipis */
-    border-radius: 3px;     /* Optional: sudut sedikit melengkung */
+/* === MODIFIKASI/PENAMBAHAN STYLE TOMBOL KEMBALI DI HALAMAN PETA === */
+.back-button-map {
+    position: fixed; /* Tetap di posisi yang sama */
+    top: 10px;       /* Sedikit jarak dari atas */
+    left: 50px;      /* Jarak dari kiri (beri ruang untuk kontrol zoom Leaflet) */
+    z-index: 1001;   /* Pastikan di atas peta */
+    padding: 6px 12px; /* Padding sedikit lebih kecil */
+    background-color: #ffffff; /* Latar belakang putih */
+    color: #005bab; /* Warna teks biru Pertamina */
+    border: 1px solid #ccc; /* Border tipis */
+    border-radius: 4px; /* Sudut sedikit bulat */
+    font-size: 0.9em;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; /* Transisi halus */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Bayangan halus */
+    cursor: pointer;
 }
 
-/* Sedikit penyesuaian lebar popup jika gambar terlalu besar */
-.leaflet-popup-content {
-    width: auto !important; /* Biarkan lebar menyesuaikan konten */
-    min-width: 200px; /* Lebar minimum popup */
-    max-width: 280px; /* Lebar maksimum popup agar tidak terlalu lebar */
+.back-button-map:hover {
+    background-color: #f0f0f0; /* Warna latar sedikit abu saat hover */
+    color: #003f7f; /* Biru lebih gelap saat hover */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Bayangan sedikit lebih jelas */
 }

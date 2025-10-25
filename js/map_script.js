@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18     ,
+        maxZoom: 18,
         attribution: 'Tiles © Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     });
 
@@ -114,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
     // Muat file KML
     const kmlLayer = omnivore.kml('peta_kabel.kml')
         .on('ready', function() {
@@ -128,14 +127,47 @@ document.addEventListener('DOMContentLoaded', function() {
                     const lat = coordinates[1];
                     const lng = coordinates[0];
 
-                    // Tambahkan event listener untuk klik
+                    // === AWAL KODE MODIFIKASI IKON ===
+                    let iconColor = 'cadetblue'; // Warna default jika tidak cocok
+                    let iconGlyph = 'info';      // Ikon default (nama ikon Font Awesome tanpa fa-)
+
+                    if (placemarkName.startsWith('RK')) {
+                        iconColor = 'red';
+                        iconGlyph = 'network-wired'; // Ikon untuk RK
+                    } else if (placemarkName.startsWith('TB')) {
+                        iconColor = 'blue';
+                        iconGlyph = 'box'; // Ikon untuk TB
+                    } else if (placemarkName.startsWith('Telepon')) { // Cek "Telepon" karena ada di KML
+                        iconColor = 'green';
+                        iconGlyph = 'phone'; // Ikon untuk Telepon
+                    } else if (placemarkName.startsWith('Terminal Center')) {
+                         iconColor = 'orange'; // Warna lain untuk Terminal Center
+                         iconGlyph = 'server';
+                    }
+                    // Tambahkan 'else if' lain jika perlu
+
+                    // Buat ikon baru dengan Leaflet.awesome-markers
+                    const customIcon = L.AwesomeMarkers.icon({
+                        icon: iconGlyph,
+                        prefix: 'fa', // Prefix untuk Font Awesome (biasanya 'fa' atau 'fas')
+                        markerColor: iconColor
+                    });
+
+                    // Terapkan ikon baru ke layer marker
+                    if (layer.setIcon) {
+                       layer.setIcon(customIcon);
+                    }
+                    // === AKHIR KODE MODIFIKASI IKON ===
+
+
+                    // Tambahkan event listener untuk klik (Kode Asli)
                     layer.on('click', function(e) {
-                        L.DomEvent.stopPropagation(e); // Hentikan event agar tidak konflik jika ada listener lain
+                        L.DomEvent.stopPropagation(e);
                         showPopupWithDetails(e.target, placemarkName, lat, lng);
                     });
 
 
-                    // Tooltip (Label) Permanen
+                    // Tooltip (Label) Permanen (Kode Asli)
                     layer.bindTooltip(placemarkName, {
                         permanent: true,
                         direction: 'right',
@@ -143,16 +175,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         className: 'kml-label'
                     });
 
-                    // Hapus event listener lama untuk popupopen/close jika ada
+                    // Hapus event listener lama untuk popupopen/close jika ada (Kode Asli)
                     layer.off('popupopen');
                     layer.off('popupclose');
 
-                     // Event saat popup ditutup (untuk mereset currentMarker)
+                     // Event saat popup ditutup (untuk mereset currentMarker) (Kode Asli)
                      layer.on('popupclose', function() {
                         console.log(`Popup closed for: ${placemarkName}`);
-                        if (currentMarker === layer) { // Hanya reset jika popup yang ditutup adalah yang aktif
+                        if (currentMarker === layer) {
                             currentMarker = null;
-                            currentTbData = null; // Kosongkan cache data juga
+                            currentTbData = null;
                             currentKmlCoords = { lat: null, lng: null };
                         }
                      });
