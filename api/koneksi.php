@@ -17,4 +17,3 @@ if ($koneksi->connect_error) {
 $koneksi->set_charset("utf8mb4");
 
 ?>
-<!-- done -->

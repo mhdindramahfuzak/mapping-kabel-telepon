@@ -37,4 +37,3 @@ if ($result) {
 
 $koneksi->close(); // Tutup koneksi database
 ?>
-<!-- done -->
