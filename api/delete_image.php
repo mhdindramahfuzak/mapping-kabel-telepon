@@ -77,3 +77,4 @@ if (isset($_POST['id_tb']) && is_numeric($_POST['id_tb'])) {
 $koneksi->close();
 echo json_encode($response);
 ?>
+<!-- done -->

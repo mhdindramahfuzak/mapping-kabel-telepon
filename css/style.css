@@ -261,7 +261,7 @@ hr {
     margin: 20px 0;
 }
 
-/* === MODIFIKASI/PENAMBAHAN STYLE TOMBOL KEMBALI DI HALAMAN PETA === */
+
 .back-button-map {
     position: fixed; /* Tetap di posisi yang sama */
     top: 10px;       /* Sedikit jarak dari atas */
@@ -285,3 +285,4 @@ hr {
     color: #003f7f; /* Biru lebih gelap saat hover */
     box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Bayangan sedikit lebih jelas */
 }
+/* done */

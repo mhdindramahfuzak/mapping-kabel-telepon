@@ -60,3 +60,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Panggil fungsi untuk memuat data saat halaman siap
     loadRiwayatData();
 });
+
+//done

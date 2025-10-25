@@ -501,4 +501,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-}); // Akhir dari DOMContentLoaded
+}); 
+
+// done
