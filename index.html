@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pemetaan Jaringan Telepon - RU II Sei Pakning</title>
-    <link rel="stylesheet" href="css/style.css"> <style>
+    <link rel="stylesheet" href="css/style.css"> 
+    
+    <style>
         body {
             display: flex;
             flex-direction: column;
@@ -12,59 +14,142 @@
             align-items: center;
             height: 100vh;
             text-align: center;
-            background-color: #f4f4f4; /* Warna latar belakang lembut */
-            font-family: Arial, sans-serif;
-            margin: 0; /* Hapus margin default body */
-            overflow: hidden; /* Mencegah scroll di landing page */
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font lebih modern */
+            margin: 0;
+            overflow: hidden;
+            position: relative; /* Penting untuk posisi footer */
         }
+
         .container {
             background: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Shadow lebih halus */
+            transition: transform 0.3s ease;
+            z-index: 10; /* Pastikan di atas elemen lain */
         }
+
+        .container:hover {
+            transform: translateY(-5px); /* Efek melayang dikit saat hover */
+        }
+
         h1 {
-            color: #005bab; /* Warna biru Pertamina */
+            color: #005bab;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+            line-height: 1.4;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .logo {
+            max-width: 180px;
             margin-bottom: 20px;
         }
-        .logo {
-            max-width: 200px; /* Atur ukuran logo */
-            margin-bottom: 30px;
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
         }
+
         .nav-button {
-            display: inline-block; /* Agar bisa atur margin */
-            padding: 12px 25px;
-            margin: 10px;
-            background-color: #007bff; /* Warna tombol biru */
+            padding: 12px 24px;
+            background-color: #007bff;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease;
-            border: none; /* Hapus border default */
-            cursor: pointer; /* Tampilan pointer */
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,123,255,0.2);
         }
+
         .nav-button:hover {
-            background-color: #0056b3; /* Warna hover lebih gelap */
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,123,255,0.3);
         }
-         .nav-button-secondary {
-             background-color: #6c757d; /* Warna abu-abu untuk tombol sekunder */
-         }
-         .nav-button-secondary:hover {
-             background-color: #5a6268;
-         }
+
+        .nav-button-secondary {
+            background-color: #6c757d;
+            box-shadow: 0 4px 6px rgba(108,117,125,0.2);
+        }
+
+        .nav-button-secondary:hover {
+            background-color: #5a6268;
+            box-shadow: 0 6px 8px rgba(108,117,125,0.3);
+        }
+
+        /* --- STYLE UNTUK WATERMARK / FOOTER --- */
+        .footer-credit {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* Jarak antara teks dan logo */
+            color: #888;
+            font-size: 0.9em;
+            opacity: 0.8; /* Sedikit transparan agar elegan */
+        }
+
+        .credit-text {
+            text-align: right;
+            border-right: 2px solid #ccc; /* Garis pemisah */
+            padding-right: 15px;
+        }
+
+        .credit-text strong {
+            display: block;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .credit-text span {
+            font-size: 0.9em;
+        }
+
+        .logo-kampus {
+            height: 45px; /* Sesuaikan ukuran logo kampus */
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-kampus:hover {
+            transform: scale(1.1);
+        }
+
     </style>
 </head>
 <body>
+
     <div class="container">
         <img src="img/logo_pertamina.png" alt="Logo Pertamina" class="logo">
+        
         <h1>Sistem Informasi Pemetaan<br>Jaringan Telepon</h1>
         <p>RU II Sei Pakning</p>
-        <div>
+        
+        <div class="button-group">
             <a href="map.html" class="nav-button">Buka Peta Jaringan</a>
             <a href="riwayat.html" class="nav-button nav-button-secondary">Lihat Riwayat Perbaikan</a>
         </div>
     </div>
+
+    <div class="footer-credit">
+        <div class="credit-text">
+            <strong>Muhammad Indra Mahfuzak</strong>
+            <span>Teknik Informatika G22</span>
+        </div>
+        <img src="img/logo_pcr.jpg" alt="Logo Politeknik Caltex Riau" class="logo-kampus">
+    </div>
+
 </body>
 </html>
-
