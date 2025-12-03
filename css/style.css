@@ -4,14 +4,14 @@ html, body {
     padding: 0;
     height: 100%;
     font-family: Arial, sans-serif;
-    overflow: hidden; /* Mencegah scroll di halaman peta */
+    overflow: hidden;
 }
 
 /* Kontainer Peta */
 #map {
     width: 100vw;
     height: 100vh;
-    z-index: 1; /* Pastikan peta di bawah sidebar */
+    z-index: 1;
 }
 
 /* Styling Sidebar */
@@ -32,12 +32,10 @@ html, body {
     flex-direction: column;
 }
 
-/* Kelas untuk menampilkan sidebar */
 #sidebar.sidebar-open {
     right: 0;
 }
 
-/* Tombol Tutup Sidebar */
 #close-sidebar {
     position: absolute;
     top: 10px;
@@ -70,10 +68,9 @@ html, body {
     flex-shrink: 0;
 }
 #sidebar p b {
-    color: #005bab; /* Warna biru Pertamina */
+    color: #005bab;
 }
 
-/* Styling Views dalam Sidebar */
 .sidebar-view {
     display: none;
     margin-top: 15px;
@@ -85,8 +82,6 @@ html, body {
     display: block;
 }
 
-
-/* Styling Form di Sidebar */
 .form-group {
     margin-bottom: 15px;
 }
@@ -112,7 +107,6 @@ textarea {
     min-height: 60px;
 }
 
-/* Styling Tombol Umum di Sidebar & Popup */
 .btn-submit, .popup-main-btn {
     display: block;
     width: 100%;
@@ -127,24 +121,22 @@ textarea {
     box-sizing: border-box;
     text-decoration: none;
     color: white;
+    transition: all 0.2s ease;
 }
 
-/* Variasi Warna Tombol */
 .btn-save { background-color: #28a745; }
-.btn-save:hover { background-color: #218838; }
+.btn-save:hover { background-color: #218838; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 .btn-edit { background-color: #ffc107; color: #333; }
-.btn-edit:hover { background-color: #e0a800; }
+.btn-edit:hover { background-color: #e0a800; transform: translateY(-1px); }
 .btn-delete { background-color: #dc3545; }
-.btn-delete:hover { background-color: #c82333; }
+.btn-delete:hover { background-color: #c82333; transform: translateY(-1px); }
 .btn-cancel, .btn-secondary { background-color: #6c757d; }
-.btn-cancel:hover, .btn-secondary:hover { background-color: #5a6268; }
-.view-details-btn { background-color: #17a2b8; } /* Info */
-.view-details-btn:hover { background-color: #138496; }
-.add-history-btn { background-color: #007bff; } /* Primary */
-.add-history-btn:hover { background-color: #0056b3; }
+.btn-cancel:hover, .btn-secondary:hover { background-color: #5a6268; transform: translateY(-1px); }
+.view-details-btn { background-color: #17a2b8; }
+.view-details-btn:hover { background-color: #138496; transform: translateY(-1px); }
+.add-history-btn { background-color: #007bff; }
+.add-history-btn:hover { background-color: #0056b3; transform: translateY(-1px); }
 
-
-/* Status Message */
 .form-status {
     margin-top: 10px;
     font-size: 0.9em;
@@ -159,8 +151,6 @@ textarea {
 .form-status .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
 .form-status .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;}
 
-
-/* Styling untuk Popup di Peta */
 .leaflet-popup-content-wrapper {
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.2);
@@ -170,12 +160,12 @@ textarea {
     font-size: 13px;
     line-height: 1.5;
     overflow-y: auto;
-    width: auto !important; /* Biarkan lebar menyesuaikan konten */
-    min-width: 200px; /* Lebar minimum popup */
-    max-width: 280px; /* Lebar maksimum popup */
+    width: auto !important;
+    min-width: 200px;
+    max-width: 280px;
 }
 .leaflet-popup-content b {
-    color: #005bab; /* Biru Pertamina */
+    color: #005bab;
     font-size: 1.1em;
     display: block;
     margin-bottom: 5px;
@@ -189,7 +179,6 @@ textarea {
     border-radius: 3px;
 }
 
-/* Styling untuk Tooltip (Label KML) */
 .kml-label {
     background-color: rgba(255, 255, 255, 0.75);
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -202,7 +191,6 @@ textarea {
     border-radius: 3px;
 }
 
-/* Styling Detail View di Sidebar */
 #details-view .data-display p {
     background-color: #f8f9fa;
     padding: 10px;
@@ -232,7 +220,7 @@ textarea {
     border-radius: 4px;
     background-color: #f0f0f0;
 }
-#display-image-container p { /* Style untuk "Foto tidak tersedia" */
+#display-image-container p {
     font-style: italic;
     color: #888;
     text-align: center;
@@ -243,7 +231,6 @@ textarea {
     border-radius: 4px;
 }
 
-/* Styling Bagian Edit Form */
 .edit-form-section { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
 #details-view.edit-mode .edit-form-section { display: block; }
 #details-view.edit-mode .data-display { display: none; }
@@ -261,27 +248,337 @@ hr {
     margin: 20px 0;
 }
 
-
 .back-button-map {
-    position: fixed; /* Tetap di posisi yang sama */
-    top: 10px;       /* Sedikit jarak dari atas */
-    left: 50px;      /* Jarak dari kiri (beri ruang untuk kontrol zoom Leaflet) */
-    z-index: 1001;   /* Pastikan di atas peta */
-    padding: 6px 12px; /* Padding sedikit lebih kecil */
-    background-color: #ffffff; /* Latar belakang putih */
-    color: #005bab; /* Warna teks biru Pertamina */
-    border: 1px solid #ccc; /* Border tipis */
-    border-radius: 4px; /* Sudut sedikit bulat */
+    position: fixed;
+    top: 10px;
+    left: 50px;
+    z-index: 1001;
+    padding: 6px 12px;
+    background-color: #ffffff;
+    color: #005bab;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     font-size: 0.9em;
     font-weight: bold;
     text-decoration: none;
-    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; /* Transisi halus */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Bayangan halus */
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     cursor: pointer;
 }
 
 .back-button-map:hover {
-    background-color: #f0f0f0; /* Warna latar sedikit abu saat hover */
-    color: #003f7f; /* Biru lebih gelap saat hover */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Bayangan sedikit lebih jelas */
+    background-color: #f0f0f0;
+    color: #003f7f;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.btn-kabel {
+    background-color: #8e44ad;
+    color: white !important;
+    border: none;
+}
+.btn-kabel:hover {
+    background-color: #732d91;
+}
+
+/* ========================================= */
+/* --- LAYOUT RAK/FRAME (Horizontal Scroll) --- */
+/* ========================================= */
+
+#modules-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 15px;
+    overflow-x: auto;
+    align-items: stretch;
+    padding: 15px;
+    background-color: #e9ecef;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-height: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
+    scroll-behavior: smooth;
+}
+
+/* Animasi untuk Frame baru */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.lsa-frame-column {
+    flex: 0 0 auto;
+    width: 650px;
+    height: 100%;
+    background-color: #fff;
+    border: 2px solid #555;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    animation: slideInRight 0.4s ease-out;
+    position: relative;
+}
+
+/* Frame yang sedang aktif */
+.lsa-frame-column.active-frame {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.25), 4px 4px 10px rgba(0,0,0,0.15);
+}
+
+.frame-header-title {
+    background-color: #343a40;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.frame-modules-list {
+    padding: 10px;
+    flex-grow: 1;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: auto;
+    max-height: none;
+    min-height: 0;
+}
+
+.frame-footer {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+    text-align: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+/* Animasi untuk Modul baru */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================= */
+/* --- STYLE MODUL BARU (UPDATED) --- */
+/* ========================================= */
+
+.module-card {
+    background: #fff;
+    border: 1px solid #777;
+    border-radius: 4px;
+    padding: 5px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    animation: fadeInDown 0.3s ease-out; /* Menambahkan animasi masuk */
+}
+
+.module-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.module-top-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 4px;
+    padding: 0 5px;
+    background-color: #f1f1f1;
+    border-radius: 2px;
+}
+
+.module-top-bar a {
+    transition: color 0.2s ease;
+}
+
+.module-top-bar a:hover {
+    color: #dc3545 !important;
+}
+
+/* Grid LSA (10 Kolom) */
+.lsa-grid {
+    display: grid;
+    /* UBAH 25px MENJADI 35px AGAR TULISAN 'OUT' MUAT */
+    grid-template-columns: 35px repeat(10, 1fr); 
+    gap: 1px;
+    background-color: #999;
+    border: 1px solid #999;
+}
+
+.lsa-cell {
+    background-color: white;
+    text-align: center;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Header Angka 1-10 */
+.lsa-header {
+    font-weight: bold;
+    background-color: #e2e6ea;
+    font-size: 0.85em;
+    padding: 4px 0;
+    color: #333;
+}
+
+/* Input Data */
+.lsa-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    text-align: center;
+    padding: 6px 2px; /* Padding vertikal sedikit lebih besar */
+    font-size: 0.85em;
+    font-family: monospace;
+    color: #000;
+}
+
+.lsa-input:focus {
+    background-color: #e8f0fe;
+    outline: none;
+    box-shadow: inset 0 0 0 2px #4285f4;
+}
+
+/* Input yang sedang aktif/difokuskan via Keyboard Nav */
+.lsa-input.keyboard-focused {
+    box-shadow: inset 0 0 0 2px #4285f4;
+    background-color: #e8f0fe;
+}
+
+/* Membedakan input baris atas dan bawah */
+.inp-row-a { background-color: #fff; }
+.inp-row-b { background-color: #f9f9f9; } /* Sedikit abu agar beda */
+
+/* Baris Label (A/B) di kiri */
+.lsa-row-label {
+    font-weight: bold;
+    font-size: 0.7em; /* Sedikit dikecilkan */
+    background-color: #eee;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* Pastikan teks rata tengah */
+}
+
+/* --- STATUS BAR YANG LEBIH JELAS --- */
+.status-bar {
+    height: 24px; /* Lebih tinggi supaya jelas */
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.status-bar:hover {
+    opacity: 0.85;
+}
+
+/* Warna Hijau (Bagus) */
+.status-good { 
+    background-color: #28a745; 
+}
+.status-good::after {
+    content: "✓"; /* Ikon Centang */
+}
+
+/* Warna Merah (Rusak) */
+.status-bad { 
+    background-color: #dc3545; 
+}
+.status-bad::after {
+    content: "✕"; /* Ikon Silang */
+}
+
+/* Efek saat drag */
+.status-bar.drag-active {
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.6);
+}
+
+/* ========================================= */
+/* --- HELPER STYLES (TOOLTIPS & SCROLL) --- */
+/* ========================================= */
+
+/* Tooltip helper */
+.keyboard-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+    max-width: 300px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.keyboard-hint kbd {
+    background: #555;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    margin: 0 2px;
+}
+
+/* Smooth scrolling untuk container */
+#modules-container::-webkit-scrollbar {
+    height: 12px;
+}
+
+#modules-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+
+#modules-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 6px;
+}
+
+#modules-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }

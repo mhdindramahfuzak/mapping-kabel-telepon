@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Modul Kabel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .container-modul {
+            max-width: 100%;
+            margin: 0;
+            background: white;
+            padding: 15px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header-modul {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            flex-shrink: 0;
+        }
+        .header-modul h1 {
+            margin: 0;
+            color: #333;
+            font-size: 1.8em;
+        }
+        .tb-info {
+            font-size: 1.1em;
+            color: #005bab;
+            font-weight: bold;
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        #loading-indicator {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+        #modules-container {
+            flex-grow: 1;
+            min-height: 0;
+        }
+        /* Penyesuaian agar grid terlihat bagus di layar penuh */
+        .module-card {
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .lsa-grid {
+            gap: 1px;
+            background-color: #ccc;
+            border: 1px solid #ccc;
+        }
+        .lsa-cell {
+            background-color: white;
+            padding: 5px;
+        }
+        .lsa-input {
+            border: 1px solid #eee;
+            padding: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-modul">
+        <div class="header-modul">
+            <div>
+                <h1>Konfigurasi Isi Kabel (Modul)</h1>
+                <span class="tb-info" id="page-tb-name">Memuat...</span>
+            </div>
+            <a href="map.html" class="btn-submit btn-secondary" style="text-decoration:none; display:inline-block; width:auto; padding: 8px 16px;">&laquo; Kembali ke Peta</a>
+        </div>
+
+        <div id="loading-indicator">Sedang memuat data...</div>
+        
+        <div id="modules-container"></div>
+
+        <div class="controls" style="align-items: center;">
+                    <button type="button" class="btn-submit btn-secondary" style="width:auto;" onclick="addNewFrameManual()">+ Tambah Frame (Kanan)</button>
+                    
+                    <div id="autosave-status" style="margin-left: auto; color: #666; font-style: italic; font-weight: bold;">
+                        <span style="color:#28a745;">✓ Semua perubahan tersimpan</span>
+                    </div>
+        </div>
+    </div>
+
+    <script src="js/modul.js"></script>
+</body>
+</html>
